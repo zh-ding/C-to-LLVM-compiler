@@ -119,3 +119,11 @@ dmypy.json
 #Mac files
 *.DS_Store
 .DS_Store
+
+#Standard C
+C/
+
+#antlr4 files
+.antlr/
+
+input.txt
