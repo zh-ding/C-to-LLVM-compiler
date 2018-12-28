@@ -26,12 +26,12 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#function.
-    def enterFunction(self, ctx:simpleCParser.FunctionContext):
+    # Enter a parse tree produced by simpleCParser#mFunction.
+    def enterMFunction(self, ctx:simpleCParser.MFunctionContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#function.
-    def exitFunction(self, ctx:simpleCParser.FunctionContext):
+    # Exit a parse tree produced by simpleCParser#mFunction.
+    def exitMFunction(self, ctx:simpleCParser.MFunctionContext):
         pass
 
 
@@ -95,15 +95,6 @@ class simpleCListener(ParseTreeListener):
 
     # Exit a parse tree produced by simpleCParser#arrayInitBlock.
     def exitArrayInitBlock(self, ctx:simpleCParser.ArrayInitBlockContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#arrayNoInitBlock.
-    def enterArrayNoInitBlock(self, ctx:simpleCParser.ArrayNoInitBlockContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#arrayNoInitBlock.
-    def exitArrayNoInitBlock(self, ctx:simpleCParser.ArrayNoInitBlockContext):
         pass
 
 
@@ -179,6 +170,24 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by simpleCParser#for1Block.
+    def enterFor1Block(self, ctx:simpleCParser.For1BlockContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#for1Block.
+    def exitFor1Block(self, ctx:simpleCParser.For1BlockContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#for3Block.
+    def enterFor3Block(self, ctx:simpleCParser.For3BlockContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#for3Block.
+    def exitFor3Block(self, ctx:simpleCParser.For3BlockContext):
+        pass
+
+
     # Enter a parse tree produced by simpleCParser#returnBlock.
     def enterReturnBlock(self, ctx:simpleCParser.ReturnBlockContext):
         pass
@@ -224,12 +233,12 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#strig.
-    def enterStrig(self, ctx:simpleCParser.StrigContext):
+    # Enter a parse tree produced by simpleCParser#string.
+    def enterString(self, ctx:simpleCParser.StringContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#strig.
-    def exitStrig(self, ctx:simpleCParser.StrigContext):
+    # Exit a parse tree produced by simpleCParser#string.
+    def exitString(self, ctx:simpleCParser.StringContext):
         pass
 
 
@@ -257,6 +266,15 @@ class simpleCListener(ParseTreeListener):
 
     # Exit a parse tree produced by simpleCParser#double.
     def exitDouble(self, ctx:simpleCParser.DoubleContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#function.
+    def enterFunction(self, ctx:simpleCParser.FunctionContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#function.
+    def exitFunction(self, ctx:simpleCParser.FunctionContext):
         pass
 
 
@@ -347,6 +365,33 @@ class simpleCListener(ParseTreeListener):
 
     # Exit a parse tree produced by simpleCParser#scanfFunc.
     def exitScanfFunc(self, ctx:simpleCParser.ScanfFuncContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#getsFunc.
+    def enterGetsFunc(self, ctx:simpleCParser.GetsFuncContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#getsFunc.
+    def exitGetsFunc(self, ctx:simpleCParser.GetsFuncContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#selfDefinedFunc.
+    def enterSelfDefinedFunc(self, ctx:simpleCParser.SelfDefinedFuncContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#selfDefinedFunc.
+    def exitSelfDefinedFunc(self, ctx:simpleCParser.SelfDefinedFuncContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#argument.
+    def enterArgument(self, ctx:simpleCParser.ArgumentContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#argument.
+    def exitArgument(self, ctx:simpleCParser.ArgumentContext):
         pass
 
 
