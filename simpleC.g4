@@ -84,6 +84,14 @@ printfFunc
 //scanf
 scanfFunc : 'scanf' '(' (('&')?mID)(','('&')?mID)* ')'';';
 
+//gets
+getsFunc : 'gets' '(' mID ')';
+
+//Selfdefined
+selfDefinedFunc : mID '('((argument|mID)(','argument|mID)*)? ')';
+
+argument : mINT | mDOUBLE | mCHAR | mSTRING;
+
 //mID
 mID : ID;
 

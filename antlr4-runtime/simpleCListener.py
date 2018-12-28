@@ -350,6 +350,33 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by simpleCParser#getsFunc.
+    def enterGetsFunc(self, ctx:simpleCParser.GetsFuncContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#getsFunc.
+    def exitGetsFunc(self, ctx:simpleCParser.GetsFuncContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#selfDefinedFunc.
+    def enterSelfDefinedFunc(self, ctx:simpleCParser.SelfDefinedFuncContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#selfDefinedFunc.
+    def exitSelfDefinedFunc(self, ctx:simpleCParser.SelfDefinedFuncContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#argument.
+    def enterArgument(self, ctx:simpleCParser.ArgumentContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#argument.
+    def exitArgument(self, ctx:simpleCParser.ArgumentContext):
+        pass
+
+
     # Enter a parse tree produced by simpleCParser#mID.
     def enterMID(self, ctx:simpleCParser.MIDContext):
         pass

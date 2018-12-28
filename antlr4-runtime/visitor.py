@@ -35,13 +35,12 @@ class Visitor(simpleCVisitor):
 
 
     # Visit a parse tree produced by simpleCParser#mFunction.
-    def visitMFunction(self, ctx:simpleCParser.MFunctionContext):
+    def visitFunction(self, ctx:simpleCParser.FunctionContext):
         # return self.visitChildren(ctx)
         ret = 'define '
         ret += self.visit(ctx.getChild(0))
         ret += '@'
-        # print(ctx.getChild(1).getText())
-        ret += ctx.getChild(1).getText()
+        ret += self.visit(ctx.getChild(1))
         ret += '('
         ret += self.visit(ctx.getChild(3))
         ret += ') {\n'
@@ -138,9 +137,8 @@ class Visitor(simpleCVisitor):
     # Visit a parse tree produced by simpleCParser#returnBlock.
     def visitReturnBlock(self, ctx:simpleCParser.ReturnBlockContext):
         ret = 'ret '
-        print(ctx.getChild(1).getPayload())
-        help(ctx.getChild(1))
-        # res = self.visit(ctx.getChild(1))
+        res = self.visit(ctx.getChild(1))
+        print(res)
         # if isinstance(res, dict):
         #     ret += res['type'] + ' '
         #     ret += res['content'] + '\n'
@@ -276,6 +274,32 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#argument.
     def visitArgument(self, ctx:simpleCParser.ArgumentContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#mINT.
+    def visitMINT(self, ctx:simpleCParser.MINTContext):
+        return "i32 " + ctx.getText()
+        # return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#mCHAR.
+    def visitMCHAR(self, ctx:simpleCParser.MCHARContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#mDOUBLE.
+    def visitMDOUBLE(self, ctx:simpleCParser.MDOUBLEContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#mSTRING.
+    def visitMSTRING(self, ctx:simpleCParser.MSTRINGContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#mLIB.
+    def visitMLIB(self, ctx:simpleCParser.MLIBContext):
         return self.visitChildren(ctx)
 
 del simpleCParser
