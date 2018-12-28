@@ -5,6 +5,7 @@ from simpleCParser import simpleCParser
 from simpleCLexer import simpleCLexer
 from simpleCListener import simpleCListener
 from simpleCVisitor import simpleCVisitor
+from visitor import Visitor
 
 def main(argv):
     input = FileStream(argv[1])
@@ -12,8 +13,9 @@ def main(argv):
     stream = CommonTokenStream(lexer)
     parser = simpleCParser(stream)
     tree = parser.prog()
-    v = simpleCVisitor()
-    print(v.visit(tree))
+    # v = simpleCVisitor()
+    v = Visitor()
+    v.visit(tree)
 
 if __name__ == '__main__':
     main(sys.argv)
