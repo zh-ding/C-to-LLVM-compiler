@@ -26,12 +26,12 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#function.
-    def enterFunction(self, ctx:simpleCParser.FunctionContext):
+    # Enter a parse tree produced by simpleCParser#mFunction.
+    def enterMFunction(self, ctx:simpleCParser.MFunctionContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#function.
-    def exitFunction(self, ctx:simpleCParser.FunctionContext):
+    # Exit a parse tree produced by simpleCParser#mFunction.
+    def exitMFunction(self, ctx:simpleCParser.MFunctionContext):
         pass
 
 
@@ -95,15 +95,6 @@ class simpleCListener(ParseTreeListener):
 
     # Exit a parse tree produced by simpleCParser#arrayInitBlock.
     def exitArrayInitBlock(self, ctx:simpleCParser.ArrayInitBlockContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#arrayNoInitBlock.
-    def enterArrayNoInitBlock(self, ctx:simpleCParser.ArrayNoInitBlockContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#arrayNoInitBlock.
-    def exitArrayNoInitBlock(self, ctx:simpleCParser.ArrayNoInitBlockContext):
         pass
 
 
@@ -179,6 +170,24 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by simpleCParser#for1Block.
+    def enterFor1Block(self, ctx:simpleCParser.For1BlockContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#for1Block.
+    def exitFor1Block(self, ctx:simpleCParser.For1BlockContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#for3Block.
+    def enterFor3Block(self, ctx:simpleCParser.For3BlockContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#for3Block.
+    def exitFor3Block(self, ctx:simpleCParser.For3BlockContext):
+        pass
+
+
     # Enter a parse tree produced by simpleCParser#returnBlock.
     def enterReturnBlock(self, ctx:simpleCParser.ReturnBlockContext):
         pass
@@ -194,6 +203,15 @@ class simpleCListener(ParseTreeListener):
 
     # Exit a parse tree produced by simpleCParser#Neg.
     def exitNeg(self, ctx:simpleCParser.NegContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#identifier.
+    def enterIdentifier(self, ctx:simpleCParser.IdentifierContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#identifier.
+    def exitIdentifier(self, ctx:simpleCParser.IdentifierContext):
         pass
 
 
@@ -215,12 +233,12 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#strig.
-    def enterStrig(self, ctx:simpleCParser.StrigContext):
+    # Enter a parse tree produced by simpleCParser#string.
+    def enterString(self, ctx:simpleCParser.StringContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#strig.
-    def exitStrig(self, ctx:simpleCParser.StrigContext):
+    # Exit a parse tree produced by simpleCParser#string.
+    def exitString(self, ctx:simpleCParser.StringContext):
         pass
 
 
@@ -251,21 +269,21 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by simpleCParser#function.
+    def enterFunction(self, ctx:simpleCParser.FunctionContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#function.
+    def exitFunction(self, ctx:simpleCParser.FunctionContext):
+        pass
+
+
     # Enter a parse tree produced by simpleCParser#char.
     def enterChar(self, ctx:simpleCParser.CharContext):
         pass
 
     # Exit a parse tree produced by simpleCParser#char.
     def exitChar(self, ctx:simpleCParser.CharContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#mIDentifier.
-    def enterMIDentifier(self, ctx:simpleCParser.MIDentifierContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#mIDentifier.
-    def exitMIDentifier(self, ctx:simpleCParser.MIDentifierContext):
         pass
 
 
@@ -395,21 +413,21 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#mCHAR.
-    def enterMCHAR(self, ctx:simpleCParser.MCHARContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#mCHAR.
-    def exitMCHAR(self, ctx:simpleCParser.MCHARContext):
-        pass
-
-
     # Enter a parse tree produced by simpleCParser#mDOUBLE.
     def enterMDOUBLE(self, ctx:simpleCParser.MDOUBLEContext):
         pass
 
     # Exit a parse tree produced by simpleCParser#mDOUBLE.
     def exitMDOUBLE(self, ctx:simpleCParser.MDOUBLEContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#mCHAR.
+    def enterMCHAR(self, ctx:simpleCParser.MCHARContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#mCHAR.
+    def exitMCHAR(self, ctx:simpleCParser.MCHARContext):
         pass
 
 
