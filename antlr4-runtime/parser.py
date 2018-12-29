@@ -17,9 +17,9 @@ def main(argv):
     v = Visitor()
     code = v.visit(tree)
     if (len(argv) >= 3):
-    	open(argv[2], 'w').write(code)
+    	open(argv[2], 'w').write(code['content'])
     else:
-    	print(code)
+    	print(code['content'])
 
 if __name__ == '__main__':
     main(sys.argv)
