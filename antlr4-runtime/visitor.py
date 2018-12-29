@@ -126,23 +126,37 @@ class Visitor(simpleCVisitor):
     # Visit a parse tree produced by simpleCParser#ifBlocks.
     def visitIfBlocks(self, ctx:simpleCParser.IfBlocksContext):
         print('ifBlocks')
-        # ret = ''
-        # endif_label = self.label_cnt
-        # self.label_cnt += 1
-        # total = ctx.getChildCount()
-        # for index in range(total):
-        #     ret += self.visit(ctx.getChild(index))
-        #     ret += 'br label %%%d\n' % endif_label
-        return self.visitChildren(ctx)
+        ret = {'prepare': '', 'content': ''}
+        endif_label = self.label_cnt
+        self.label_cnt += 1
+        total = ctx.getChildCount()
+        for index in range(total):
+            res = self.visit(ctx.getChild(index))
+            # ret['prepare'] += res['prepare']
+            ret['content'] += res['content']
+            ret['content'] += 'br label %%"label%d"\n' % endif_label
+        ret['content'] += 'label%d:\n' % endif_label
+        return ret
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#ifBlock.
     def visitIfBlock(self, ctx:simpleCParser.IfBlockContext):
         print('ifBlock')
-        # ret = ''
-        # ret += self.visit(ctx.getChild(2)) # condition
+        ret = {'prepare': '', 'content': ''}
+        labelIF = self.label_cnt
+        labelELSE = self.label_cnt+1
+        self.label_cnt += 2
 
-        # ret += self.visit(ctx.getChild(5)) # body
+        res = self.visit(ctx.getChild(2)) # condition
+        ret['content'] = res['prepare'] + ret['content']
+        ret['content'] += 'br i1 %s, label %%"label%d", label %%"label%d"\n' %\
+                            (res['content'], labelIF, labelELSE)
+        ret['content'] += 'label%d:\n' % labelIF
+
+        res = self.visit(ctx.getChild(5)) # body
+        ret['content'] += res['content']
+        ret['content'] += 'label%d:\n' % labelELSE
 
         return ret
 
@@ -150,18 +164,53 @@ class Visitor(simpleCVisitor):
     # Visit a parse tree produced by simpleCParser#elifBlock.
     def visitElifBlock(self, ctx:simpleCParser.ElifBlockContext):
         print('elifBlock')
-        return self.visitChildren(ctx)
+        ret = {'prepare': '', 'content': ''}
+        labelIF = self.label_cnt
+        labelELSE = self.label_cnt+1
+        self.label_cnt += 2
+
+        res = self.visit(ctx.getChild(3)) # condition
+        ret['content'] = res['prepare'] + ret['content']
+        ret['content'] += 'br i1 %s, label %%"label%d", label %%"label%d"\n' %\
+                            (res['content'], labelIF, labelELSE)
+        ret['content'] += 'label%d:\n' % labelIF
+
+        res = self.visit(ctx.getChild(6)) # body
+        ret['content'] += res['content']
+        ret['content'] += 'label%d:\n' % labelELSE
+        return ret
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#elseBlock.
     def visitElseBlock(self, ctx:simpleCParser.ElseBlockContext):
         print('elseBlock')
-        return self.visitChildren(ctx)
+        ret = {'prepare': '', 'content': ''}
+        res = self.visit(ctx.getChild(2)) # body
+        ret['content'] += res['content']
+        return ret
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#condition.
     def visitCondition(self, ctx:simpleCParser.ConditionContext):
         print('condition')
+        ret = self.visit(ctx.getChild(0))
+        total = ctx/getChildCount()
+        for index in range(1, total, 2):
+            res = self.visit(ctx.getChild(index+1))
+            ret['prepare'] += res['prepare']
+            if ctx.getChild(index).getText() == '&&':
+                ret['prepare'] += '%%".%d" = and i1 %s, %s\n' % \
+                                    (self.var_cnt, ret['content'], res['content'])
+                ret['content'] = '%%".%d"' % self.var_cnt
+                self.var_cnt += 1
+            elif if ctx.getChild(index).getText() == '||':
+                ret['prepare'] += '%%".%d" = or i1 %s, %s\n' % \
+                                    (self.var_cnt, ret['content'], res['content'])
+                ret['content'] = '%%".%d"' % self.var_cnt
+                self.var_cnt += 1
+
         return self.visitChildren(ctx)
 
 
