@@ -16,8 +16,10 @@ def main(argv):
     # v = simpleCVisitor()
     v = Visitor()
     v.visit(tree)
+    # help(v.module)
     if (len(argv) >= 3):
-    	open(argv[2], 'w').write(v.module)
+        print(v.module, file=open(argv[2], 'w'))
+    	# open(argv[2], 'w').write(v.module)
     else:
     	print(v.module)
 
