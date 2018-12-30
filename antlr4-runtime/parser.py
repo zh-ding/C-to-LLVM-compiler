@@ -15,11 +15,11 @@ def main(argv):
     tree = parser.prog()
     # v = simpleCVisitor()
     v = Visitor()
-    code = v.visit(tree)
+    v.visit(tree)
     if (len(argv) >= 3):
-    	open(argv[2], 'w').write(code['content'])
+    	open(argv[2], 'w').write(v.module)
     else:
-    	print(code['content'])
+    	print(v.module)
 
 if __name__ == '__main__':
     main(sys.argv)

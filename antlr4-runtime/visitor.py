@@ -1,3 +1,4 @@
+# Generated from simpleC.g4 by ANTLR 4.7.2
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .simpleCParser import simpleCParser
@@ -5,107 +6,122 @@ else:
     from simpleCParser import simpleCParser
 
 from simpleCVisitor import simpleCVisitor
+from llvmlite import ir
+
+double = ir.DoubleType()
+int32 = ir.IntType(32)
+int8 = ir.IntType(8)
+void = ir.VoidType()
+
+# This class defines a complete generic visitor for a parse tree produced by simpleCParser.
 
 class Visitor(simpleCVisitor):
 
     def __init__(self):
         super(simpleCVisitor, self).__init__()
-        self.constants = []
+        self.module = ir.Module()
+        self.blocks = []
+        self.builders = []
+        self.local_vars = []
+        self.global_vars = dict()
         self.functions = dict()
-        self.var_cnt = 0
-        self.label_cnt = 0
-        
+        self.constants = 0
+        # self.var_cnt = 0
+        # self.label_cnt = 0
 
-    def visitChildren(self, ctx, filling = '\n'):
-        ret = { 'prepare': '', 'content': '' }
-        total = ctx.getChildCount()
-        # print(total)
-        for index in range(total):
-            res = self.visit(ctx.getChild(index))
-            # print(res)
-            ret['prepare'] += res['prepare']
-            ret['content'] += res['content']
-            if index < total-1:
-                ret['content'] += filling
-        return ret
-    
     # Visit a parse tree produced by simpleCParser#prog.
     def visitProg(self, ctx:simpleCParser.ProgContext):
-        ret = self.visitChildren(ctx)
-        for value in self.constants:
-            ret['content'] += value
-        for value in self.functions.values():
-            ret['content'] += value
-        return ret
+        total = ctx.getChildCount()
+        for index in range(total):
+            self.visit(ctx.getChild(index))
+        return
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#include.
     def visitInclude(self, ctx:simpleCParser.IncludeContext):
-        # return self.visitChildren(ctx)
-        return {'prepare': '', 'content': ''}
+        return
 
 
     # Visit a parse tree produced by simpleCParser#mFunction.
-    def visitMFunction(self, ctx:simpleCParser.FunctionContext):
-        # return self.visitChildren(ctx)
-        ret = { 'prepare': '', 'content': 'define ' }
-        res = self.visit(ctx.getChild(0))  # return type
-        ret['content'] += res['content']
-        ret['content'] += ' @'
-        res = self.visit(ctx.getChild(1))  # function name
-        ret['content'] += res['content']
-        ret['content'] += '('
-        res = self.visit(ctx.getChild(3))  # parmas
-        ret['content'] += res['content']
-        ret['content'] += ') {\n'
-        res = self.visit(ctx.getChild(6))  # body
-        ret['content'] += res['content']
-        ret['content'] += '}\n'
-        return ret
+    def visitMFunction(self, ctx:simpleCParser.MFunctionContext):
+        return_type = self.visit(ctx.getChild(0)) # mtype
+        func_name = ctx.getChild(1).getText() # func name
+        params = self.visit(ctx.getChild(3)) # func params
+
+        params_type = []
+        for index in range(len(params)):
+            params_type.append(params[index]['type'])
+        funcProto = ir.FunctionType(return_type, params_type)
+        func = ir.Function(self.module, funcProto, name=func_name)
+        for index in range(len(params)):
+            func.args[index].name = params[index]['IDname']
+        block = func.append_basic_block(name=func_name+'.entry')
+        builder = ir.IRBuilder(block)
+        self.blocks.append(block)
+        self.builders.append(builder)
+        varList = {}
+        for index in range(len(params)):
+            varList[params[index]['IDname']] = {
+                'type': params[index]['type'],
+                'name': func.args[index]
+            }
+        self.local_vars.append(varList)
+
+        self.visit(ctx.getChild(6)) # func body
+
+        self.blocks.pop()
+        self.builders.pop()
+        self.local_vars.pop()
+        return
 
 
     # Visit a parse tree produced by simpleCParser#params.
     def visitParams(self, ctx:simpleCParser.ParamsContext):
-        print('params')
-        ret = { 'prepare': '', 'content': '' }
         total = ctx.getChildCount()
-        if total == 0:
-            return ret
-        ret = self.visit(ctx.getChild(0))
+        if (total == 0):
+            return []
+        ret = [self.visit(ctx.getChild(0))]
         for index in range(2, total, 2):
-            res = self.visit(ctx.getChild(index))
-            ret['content'] += ', ' + res['content']
+            ret.append(self.visit(ctx.getChild(index)))
         return ret
 
 
     # Visit a parse tree produced by simpleCParser#param.
     def visitParam(self, ctx:simpleCParser.ParamContext):
-        print('param')
-        ret = { 'prepare': '', 'content': '' }
-        res = self.visit(ctx.getChild(0)) # param type
-        ret['content'] += res['content']
-        res = self.visit(ctx.getChild(1)) # param name
-        ret['content'] += ' %' + res['content']
-        return ret
-        # return self.visitChildren(ctx)
+        type_ = ctx.visit(ctx.getChild(0))
+        IDname = ctx.getChild(1).getText()
+        return {
+                'type': type_,
+                'IDname': IDname
+        }
 
 
     # Visit a parse tree produced by simpleCParser#funcBody.
     def visitFuncBody(self, ctx:simpleCParser.FuncBodyContext):
-        print(ctx.getText())
-        return self.visitChildren(ctx)
+        total = ctx.getChildCount()
+        for index in range(total):
+            self.visit(ctx.getChild(index))
+        return
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#body.
     def visitBody(self, ctx:simpleCParser.BodyContext):
-        print('visitBody')
-        return self.visitChildren(ctx)
+        total = ctx.getChildCount()
+        for index in range(total):
+            self.visit(ctx.getChild(index))
+        return
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#block.
     def visitBlock(self, ctx:simpleCParser.BlockContext):
-        print('visitBlock')
-        return self.visitChildren(ctx)
+        total = ctx.getChildCount()
+        for index in range(total):
+            self.visit(ctx.getChild(index))
+        return
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#initialBlock.
@@ -125,92 +141,26 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#ifBlocks.
     def visitIfBlocks(self, ctx:simpleCParser.IfBlocksContext):
-        print('ifBlocks')
-        ret = {'prepare': '', 'content': ''}
-        endif_label = self.label_cnt
-        self.label_cnt += 1
-        total = ctx.getChildCount()
-        for index in range(total):
-            res = self.visit(ctx.getChild(index))
-            # ret['prepare'] += res['prepare']
-            ret['content'] += res['content']
-            ret['content'] += 'br label %%"label%d"\n' % endif_label
-        ret['content'] += 'label%d:\n' % endif_label
-        return ret
-        # return self.visitChildren(ctx)
+        return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#ifBlock.
     def visitIfBlock(self, ctx:simpleCParser.IfBlockContext):
-        print('ifBlock')
-        ret = {'prepare': '', 'content': ''}
-        labelIF = self.label_cnt
-        labelELSE = self.label_cnt+1
-        self.label_cnt += 2
-
-        res = self.visit(ctx.getChild(2)) # condition
-        ret['content'] = res['prepare'] + ret['content']
-        ret['content'] += 'br i1 %s, label %%"label%d", label %%"label%d"\n' %\
-                            (res['content'], labelIF, labelELSE)
-        ret['content'] += 'label%d:\n' % labelIF
-
-        res = self.visit(ctx.getChild(5)) # body
-        ret['content'] += res['content']
-        ret['content'] += 'label%d:\n' % labelELSE
-
-        return ret
+        return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#elifBlock.
     def visitElifBlock(self, ctx:simpleCParser.ElifBlockContext):
-        print('elifBlock')
-        ret = {'prepare': '', 'content': ''}
-        labelIF = self.label_cnt
-        labelELSE = self.label_cnt+1
-        self.label_cnt += 2
-
-        res = self.visit(ctx.getChild(3)) # condition
-        ret['content'] = res['prepare'] + ret['content']
-        ret['content'] += 'br i1 %s, label %%"label%d", label %%"label%d"\n' %\
-                            (res['content'], labelIF, labelELSE)
-        ret['content'] += 'label%d:\n' % labelIF
-
-        res = self.visit(ctx.getChild(6)) # body
-        ret['content'] += res['content']
-        ret['content'] += 'label%d:\n' % labelELSE
-        return ret
-        # return self.visitChildren(ctx)
+        return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#elseBlock.
     def visitElseBlock(self, ctx:simpleCParser.ElseBlockContext):
-        print('elseBlock')
-        ret = {'prepare': '', 'content': ''}
-        res = self.visit(ctx.getChild(2)) # body
-        ret['content'] += res['content']
-        return ret
-        # return self.visitChildren(ctx)
+        return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#condition.
     def visitCondition(self, ctx:simpleCParser.ConditionContext):
-        print('condition')
-        ret = self.visit(ctx.getChild(0))
-        total = ctx/getChildCount()
-        for index in range(1, total, 2):
-            res = self.visit(ctx.getChild(index+1))
-            ret['prepare'] += res['prepare']
-            if ctx.getChild(index).getText() == '&&':
-                ret['prepare'] += '%%".%d" = and i1 %s, %s\n' % \
-                                    (self.var_cnt, ret['content'], res['content'])
-                ret['content'] = '%%".%d"' % self.var_cnt
-                self.var_cnt += 1
-            elif if ctx.getChild(index).getText() == '||':
-                ret['prepare'] += '%%".%d" = or i1 %s, %s\n' % \
-                                    (self.var_cnt, ret['content'], res['content'])
-                ret['content'] = '%%".%d"' % self.var_cnt
-                self.var_cnt += 1
-
         return self.visitChildren(ctx)
 
 
@@ -237,15 +187,14 @@ class Visitor(simpleCVisitor):
     # Visit a parse tree produced by simpleCParser#returnBlock.
     def visitReturnBlock(self, ctx:simpleCParser.ReturnBlockContext):
         print('returnBlock')
-        ret = { 'prepare': '', 'content': 'ret '}
+        builder = self.builders[-1]
         res = self.visit(ctx.getChild(1))
-        ret['content'] = res['prepare'] + ret['content'] + res['content'] + '\n'
-        # if isinstance(res, dict):
-        #     ret += res['type'] + ' '
-        #     ret += res['content'] + '\n'
-        # else:
-        #     ret += res + '\n'
-        return ret
+        ret = builder.ret(res['name'])
+        return {
+                'type': void,
+                'const': False,
+                'name': ret
+        }
 
 
     # Visit a parse tree produced by simpleCParser#Neg.
@@ -255,14 +204,11 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#identifier.
     def visitIdentifier(self, ctx:simpleCParser.IdentifierContext):
-        print('Identifier' + ctx.getText())
-        return ctx.getText()
-        # return self.visitChildren(ctx)
+        return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#parens.
     def visitParens(self, ctx:simpleCParser.ParensContext):
-        # ret = self.visit(ctx.getChild(1)) + '\n'
         return self.visitChildren(ctx)
 
 
@@ -273,11 +219,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#string.
     def visitString(self, ctx:simpleCParser.StringContext):
-        # return self.visitChildren(ctx)
-        return {
-                'type': 'string',
-                'content': ctx.STRING().getText()
-                }
+        return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#MulDiv.
@@ -292,11 +234,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#double.
     def visitDouble(self, ctx:simpleCParser.DoubleContext):
-        # return self.visitChildren(ctx)
-        return {
-                'type': 'double',
-                'content': ctx.DOUBLE().getText()
-                }
+        return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#function.
@@ -306,21 +244,12 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#char.
     def visitChar(self, ctx:simpleCParser.CharContext):
-        # return self.visitChildren(ctx)
-        return {
-                'type': 'char',
-                'content': ctx.CHAR().getText()
-                }
+        return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#int.
     def visitInt(self, ctx:simpleCParser.IntContext):
-        # return self.visitChildren(ctx)
-        cont = self.visitChildren()
-        return {
-                'type': 'i32',
-                'content': cont
-                }
+        return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#Judge.
@@ -330,17 +259,13 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#mType.
     def visitMType(self, ctx:simpleCParser.MTypeContext):
-        # return self.visitChildren(ctx)
-        # print(ctx.getText())
-        print('mtype')
-        _type = ctx.getText()
-        if _type == 'int':
-            return {'prepare': '', 'content': 'i32'}
-        elif _type == 'char':
-            return {'prepare': '', 'content': 'i8'}
-        elif _type == 'double':
-            return {'prepare': '', 'content': 'double'}
-        return {'prepare': '', 'content': 'void'}
+        if ctx.getText() == 'int':
+            return int32
+        if ctx.getText() == 'char':
+            return int8
+        if ctx.getText() == 'double':
+            return double
+        return void
 
 
     # Visit a parse tree produced by simpleCParser#arrayItem.
@@ -350,10 +275,9 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#func.
     def visitFunc(self, ctx:simpleCParser.FuncContext):
-        print("func")
-        # ret = self.visitChildren(ctx)
-        ret = self.visit(ctx.getChild(0))
-        return ret
+        self.visit(ctx.getChild(0))
+        return
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#strlenFunc.
@@ -368,17 +292,29 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#printfFunc.
     def visitPrintfFunc(self, ctx:simpleCParser.PrintfFuncContext):
-        self.functions['printf'] = 'declare i32 @"printf"(i8* %".1", ...)'
-        idx = len(self.constants)
-        ret = { 'prepare': '', 'content': '' }
+        print('printfFunc')
+        if 'printf' in self.functions:
+            printf = self.functions['printf']
+        else:
+            printfty = ir.FunctionType(int32, [ir.PointerType(int8)], var_arg=True)
+            printf = ir.Function(self.module, printfty, name="printf")
+            self.functions['printf'] = printf
+
+        builder = self.builders[-1]
+        zero = ir.Constant(int32, 0)
+        index = ir.Constant(int32, 0)
         if ctx.getChildCount() == 4:
             res = self.visit(ctx.getChild(2))
-            # ret['prepare'] += res['prepare']
-            ret['content'] += ('call i32 (i8*, ...) @"printf"(i8* %s)' % res['content'])
-            ret['content'] = res['prepare'] + ret['content']
+            arg = builder.gep(res['name'], [zero, index], inbounds=True)
+            ret = builder.call(printf, [arg])
         else:
             pass
-        return ret
+        return {
+                'type': int32,
+                'const': False,
+                'name': ret
+        }
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#scanfFunc.
@@ -403,40 +339,92 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#mID.
     def visitMID(self, ctx:simpleCParser.MIDContext):
-        ret =   {
-                    'prepare': '',
-                    'content': '"' + ctx.getText() + '"'
+        IDname = ctx.getText()
+        builder = self.builders[-1]
+        total = len(self.local_vars)
+        for index in range(total):
+            varList = self.local_vars[total-1-index]
+            if IDname in varList:
+                var = builder.load(varList[IDname]['name'])
+                return {
+                        'type': varList[IDname]['type'],
+                        'const': False,
+                        'name': var
                 }
-        return ret
-        # return self.visitChildren(ctx)
+        if IDname in self.global_vars:
+            var = builder.load(self.global_vars[IDname]['name'])
+            return {
+                    'type': self.global_vars[IDname]['type'],
+                    'const': False,
+                    'name': var
+            }
+        return {
+                'type': void,
+                'const': False,
+                'name': ir.Constant(void, None)
+        }
 
 
     # Visit a parse tree produced by simpleCParser#mINT.
     def visitMINT(self, ctx:simpleCParser.MINTContext):
-        ret =   {
-                    'prepare': '',
-                    'content': "i32 " + ctx.getText()
-                }
-        return ret
-        # return self.visitChildren(ctx)
+        # idx = len(self.constants)
+        # cont = ctx.getText().replace('\\n', '\\0A')
+        # Len = self.calc_len(cont)-2
+
+        # const = ir.GlobalVariable(module, ir.IntType(32), ".int%d"%idx)
+        # const.initializer = ir.Constant(ir.IntType(32), int(ctx.getText()))
+        # const.global_constant = True
+        return {
+                'type': 'i32',
+                'const': True,
+                'name': ir.Constant(int32, int(ctx.getText()))
+        }
 
 
     # Visit a parse tree produced by simpleCParser#mDOUBLE.
     def visitMDOUBLE(self, ctx:simpleCParser.MDOUBLEContext):
-        ret =   {
-                    'prepare': '',
-                    'content': "double " + ctx.getText()
-                }
-        return ret
+        # return self.visitChildren(ctx)
+        return {
+                'type': double,
+                'const': True,
+                'name': ir.Constant(double, float(ctx.getText()))
+        }
 
 
     # Visit a parse tree produced by simpleCParser#mCHAR.
     def visitMCHAR(self, ctx:simpleCParser.MCHARContext):
-        ret =   {
-                    'prepare': '',
-                    'content': "i8 %d" % chr(ctx.getChild(1).getText()[0])
-                }
-        return ret
+        return {
+                'type': int8,
+                'const': True,
+                'name': ir.Constant(int8, ord(ctx.getChild(1).getText()[0]))
+        }
+
+
+    # Visit a parse tree produced by simpleCParser#mSTRING.
+    def visitMSTRING(self, ctx:simpleCParser.MSTRINGContext):
+        idx = self.constants
+        self.constants += 1
+        cont = ctx.getText().replace('\\n', '\n')
+        cont = cont[1:-1]
+        print(cont)
+        # Len = self.calc_len(cont)
+        Len = len(bytearray(cont, 'utf-8'))
+
+        const = ir.GlobalVariable(self.module, ir.ArrayType(int8, Len), ".str%d"%idx)
+        const.global_constant = True
+        const.initializer = ir.Constant(ir.ArrayType(int8, Len), bytearray(cont, 'utf-8'))
+        return {
+                'type': ir.ArrayType(int8, Len),
+                'const': False,
+                'name': const
+        }
+
+
+    # Visit a parse tree produced by simpleCParser#mLIB.
+    def visitMLIB(self, ctx:simpleCParser.MLIBContext):
+        # return self.visitChildren(ctx)
+        return
+
 
     def calc_len(self, st):
         Len = 0
@@ -446,27 +434,6 @@ class Visitor(simpleCVisitor):
             Len += 1
         return Len
 
-    # Visit a parse tree produced by simpleCParser#mSTRING.
-    def visitMSTRING(self, ctx:simpleCParser.MSTRINGContext):
-        idx = len(self.constants)
-        cont = ctx.getText().replace('\\n', '\\0A')
-        Len = self.calc_len(cont)-2
-        # print(ctx.getText())
-        s = '@"str.%d" = constant [%d x i8] c%s\n' % (idx, Len, cont)
-        # print(s)
-        self.constants.append(s)
-        # %".58" = getelementptr inbounds [6 x i8], [6 x i8]* @".str5", i32 0, i32 0
-        prep = '%%".%d" = getelementptr inbounds [%d x i8], [%d x i8]* @"str.%d", i32 0, i32 0\n' % \
-                (self.var_cnt, Len, Len, idx)
-        self.var_cnt += 1
-        return {
-                'prepare': prep,
-                'content': '%%".%d"' % (self.var_cnt-1)
-                }
 
-
-    # Visit a parse tree produced by simpleCParser#mLIB.
-    def visitMLIB(self, ctx:simpleCParser.MLIBContext):
-        return self.visitChildren(ctx)
 
 del simpleCParser
