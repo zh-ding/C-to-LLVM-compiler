@@ -4,32 +4,32 @@ prog :(include)* (mFunction)*;
 //prog : (forBlock)*;
 
 //-------------语法规则----------------------------------------------
-include : '#include' '<' LIB '>';
+include : '#include' '<' mLIB '>';
 
 //函数
-mFunction : mType ID '(' params ')' '{' funcBody '}';
+mFunction : mType mID '(' params ')' '{' funcBody '}';
 
 //函数参数
 params : param (','param)* |;
-param : mType ID;
+param : mType mID;
 
 //函数体
 funcBody : body returnBlock;
 
 //语句块/函数快
-body : (block | func';')*;
+body : (block | func)*;
 
 //语句块
 block : initialBlock | arrayInitBlock |  assignBlock | ifBlocks | whileBlock | forBlock | returnBlock;
 
 //初始化语句
-initialBlock : mType (ID ('=' expr)? (',' ID ('=' expr)?)*)? ';';
-arrayInitBlock : mType ID '[' INT ']'';';
-//arrayNoInitBlock : mType ID '[' ']' ';';
+initialBlock : mType (mID ('=' expr)? (',' mID ('=' expr)?)*)? ';';
+arrayInitBlock : mType mID '[' mINT ']'';';
+//arrayNoInitBlock : mType mID '[' ']' ';';
 
 
 //赋值语句
-assignBlock : ((arrayItem|ID) '=')+  expr ';';
+assignBlock : ((arrayItem|mID) '=')+  expr ';';
 
 
 //if 语句
@@ -45,11 +45,11 @@ whileBlock : 'while' '(' condition ')' '{' body '}';
 
 //for 语句
 forBlock : 'for' '(' for1Block  ';' condition ';' for3Block ')' ('{' body '}'|';');
-for1Block :  ID ('=' expr)? (',' for1Block)?|;
-for3Block : ID ('=' expr)? (',' for3Block)?|;
+for1Block :  mID ('=' expr)? (',' for1Block)?|;
+for3Block : mID ('=' expr)? (',' for3Block)?|;
 
 //return 语句
-returnBlock : 'return' + (INT|ID) + ';';
+returnBlock : 'return' + (mINT|mID) + ';';
 
 expr
     : '(' expr ')'               #parens
@@ -58,42 +58,60 @@ expr
     | expr op=('+' | '-') expr   #AddSub
     | expr op=('==' | '!=' | '<' | '<=' | '>' | '>=') expr #Judge
     | arrayItem                  #arrayietm
-    | (op='-')? INT                        #int                          
-    | (op='-')? DOUBLE                     #double
-    | CHAR                       #char
-    | STRING                     #string             
-    | ID                         #identifier   
+    | (op='-')? mINT                        #int                          
+    | (op='-')? mDOUBLE                     #double
+    | mCHAR                       #char
+    | mSTRING                     #string             
+    | mID                         #identifier   
     | func                       #function                                     
     ;
 
 mType : 'int'| 'double'| 'char'| 'string';
 
-arrayItem : ID '[' expr ']';
+arrayItem : mID '[' expr ']';
 
 
 //函数
-func : strlenFunc | atoiFunc | printfFunc | scanfFunc | getsFunc | selfDefinedFunc ;
+func : (strlenFunc | atoiFunc | printfFunc | scanfFunc | getsFunc | selfDefinedFunc)';';
 
 //strlen
-strlenFunc : 'strlen' '(' ID ')';
+strlenFunc : 'strlen' '(' mID ')';
 
 //atoi
-atoiFunc : 'atoi' '(' ID ')' ;
+atoiFunc : 'atoi' '(' mID ')' ;
 
 //printf
 printfFunc 
-    : 'printf' '(' (STRING | ID) (','expr)* ')';
+    : 'printf' '(' (mSTRING | mID) (','expr)* ')';
 
 //scanf
-scanfFunc : 'scanf' '(' (('&')?ID)(','('&')?ID)* ')';
+scanfFunc : 'scanf' '(' (('&')?mID)(','('&')?mID)* ')';
 
 //gets
-getsFunc : 'gets' '(' ID ')';
+getsFunc : 'gets' '(' mID ')';
 //Selfdefined
 
-selfDefinedFunc : ID '('((argument|ID)(','argument|ID)*)? ')';
+selfDefinedFunc : mID '('((argument|mID)(','argument|mID)*)? ')';
 
-argument : INT | DOUBLE | CHAR | STRING;
+argument : mINT | mDOUBLE | mCHAR | mSTRING;
+
+//mID
+mID : ID;
+
+//mINT
+mINT : INT;
+
+//mDOUBLE
+mDOUBLE : DOUBLE;
+
+//mCHAR
+mCHAR : CHAR;
+
+//mSTRING
+mSTRING : STRING;
+
+//mLIB
+mLIB : LIB;
 
 //-------------词法规则----------------------------------------------
 

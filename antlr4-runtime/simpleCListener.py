@@ -1,4 +1,4 @@
-# Generated from /Users/dingry/Documents/git/C-to-LLVM-compiler/simpleC.g4 by ANTLR 4.7.1
+# Generated from simpleC.g4 by ANTLR 4.7.2
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .simpleCParser import simpleCParser
@@ -392,6 +392,60 @@ class simpleCListener(ParseTreeListener):
 
     # Exit a parse tree produced by simpleCParser#argument.
     def exitArgument(self, ctx:simpleCParser.ArgumentContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#mID.
+    def enterMID(self, ctx:simpleCParser.MIDContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#mID.
+    def exitMID(self, ctx:simpleCParser.MIDContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#mINT.
+    def enterMINT(self, ctx:simpleCParser.MINTContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#mINT.
+    def exitMINT(self, ctx:simpleCParser.MINTContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#mDOUBLE.
+    def enterMDOUBLE(self, ctx:simpleCParser.MDOUBLEContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#mDOUBLE.
+    def exitMDOUBLE(self, ctx:simpleCParser.MDOUBLEContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#mCHAR.
+    def enterMCHAR(self, ctx:simpleCParser.MCHARContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#mCHAR.
+    def exitMCHAR(self, ctx:simpleCParser.MCHARContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#mSTRING.
+    def enterMSTRING(self, ctx:simpleCParser.MSTRINGContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#mSTRING.
+    def exitMSTRING(self, ctx:simpleCParser.MSTRINGContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#mLIB.
+    def enterMLIB(self, ctx:simpleCParser.MLIBContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#mLIB.
+    def exitMLIB(self, ctx:simpleCParser.MLIBContext):
         pass
 
 

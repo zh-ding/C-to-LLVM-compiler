@@ -1,4 +1,4 @@
-# Generated from /Users/dingry/Documents/git/C-to-LLVM-compiler/simpleC.g4 by ANTLR 4.7.1
+# Generated from simpleC.g4 by ANTLR 4.7.2
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .simpleCParser import simpleCParser
@@ -221,6 +221,36 @@ class simpleCVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by simpleCParser#argument.
     def visitArgument(self, ctx:simpleCParser.ArgumentContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#mID.
+    def visitMID(self, ctx:simpleCParser.MIDContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#mINT.
+    def visitMINT(self, ctx:simpleCParser.MINTContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#mDOUBLE.
+    def visitMDOUBLE(self, ctx:simpleCParser.MDOUBLEContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#mCHAR.
+    def visitMCHAR(self, ctx:simpleCParser.MCHARContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#mSTRING.
+    def visitMSTRING(self, ctx:simpleCParser.MSTRINGContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#mLIB.
+    def visitMLIB(self, ctx:simpleCParser.MLIBContext):
         return self.visitChildren(ctx)
 
 
