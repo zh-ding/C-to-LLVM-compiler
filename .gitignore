@@ -126,4 +126,8 @@ C/
 #antlr4 files
 .antlr/
 
+#executable files
+*.exe
+
 input.txt
+
