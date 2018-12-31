@@ -4,9 +4,11 @@ int foo(int a, int b) {
 }
 
 int main() {
-	int a = 1, b = '2', d;
+	int a = 1, b = '3', d;
 	int c = 3;
-	if (a == 1) {
+	int arr[10];
+	arr[0] = c;
+	if (a == 1 && b == '2') {
 		if (c == 2) {
 			printf("a=%d c==2\n", a);
 		}
@@ -15,11 +17,11 @@ int main() {
 			printf("a=%d c!=2\n", a);
 		}
 	}
-	else if (b == '2') {
+	else if (b == '4') {
 		printf("b=%c\n", b);
 	} else
 	{
-		printf("hello\n");
+		printf("hello arr[0]=%d\n", arr[0]);
 	}
 	return 0;
 }

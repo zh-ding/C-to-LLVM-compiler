@@ -180,7 +180,20 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#arrayInitBlock.
     def visitArrayInitBlock(self, ctx:simpleCParser.ArrayInitBlockContext):
-        return self.visitChildren(ctx)
+        type_ = self.visit(ctx.getChild(0))
+        IDname = ctx.getChild(1).getText()
+        Len = int(ctx.getChild(3).getText())
+        builder = self.builders[-1]
+        varList = self.local_vars[-1]
+        new_var = builder.alloca(ir.ArrayType(type_, Len), name=IDname)
+        if IDname in varList: # error!
+            pass
+        varList[IDname] = {
+            'type': ir.ArrayType(type_, Len),
+            'name': new_var
+        }
+        return
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#assignBlock.
@@ -455,7 +468,8 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#arrayietm.
     def visitArrayietm(self, ctx:simpleCParser.ArrayietmContext):
-        return self.visitChildren(ctx)
+        return self.visit(ctx.getChild(0))
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#string.
@@ -591,7 +605,30 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#arrayItem.
     def visitArrayItem(self, ctx:simpleCParser.ArrayItemContext):
-        return self.visitChildren(ctx)
+        tmp_need_load = self.need_load
+        self.need_load = False
+        res = self.visit(ctx.getChild(0)) # mID
+        self.need_load = tmp_need_load
+        
+        if isinstance(res['type'], ir.types.ArrayType):
+            builder = self.builders[-1]
+            # print(builder)
+            res1 = self.visit(ctx.getChild(2)) # subscript
+            zero = ir.Constant(int32, 0)
+            # print(res['name'])
+            new_var = builder.gep(res['name'], [zero, res1['name']], inbounds=True)
+            if self.need_load:
+                new_var = builder.load(new_var)
+            # print(res['type'].elements)
+            # print(res['type'].element)
+            return {
+                    'type': res['type'].element,
+                    'const': False,
+                    'name': new_var
+            }
+        else:   # error!
+            pass
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#func.
@@ -622,16 +659,16 @@ class Visitor(simpleCVisitor):
 
         builder = self.builders[-1]
         zero = ir.Constant(int32, 0)
-        index = ir.Constant(int32, 0)
+        # index = ir.Constant(int32, 0)
         # print(ctx.getChildCount())
         # print(ctx.getText())
         if ctx.getChildCount() == 4:
             res = self.visit(ctx.getChild(2))
-            arg = builder.gep(res['name'], [zero, index], inbounds=True)
+            arg = builder.gep(res['name'], [zero, zero], inbounds=True)
             ret = builder.call(printf, [arg])
         else:
             res = self.visit(ctx.getChild(2))
-            args = [builder.gep(res['name'], [zero, index], inbounds=True)]
+            args = [builder.gep(res['name'], [zero, zero], inbounds=True)]
 
             total = ctx.getChildCount()
             for index in range(4, total-1, 2):
