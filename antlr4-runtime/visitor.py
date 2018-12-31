@@ -37,6 +37,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#prog.
     def visitProg(self, ctx:simpleCParser.ProgContext):
+        print('Prog')
         total = ctx.getChildCount()
         for index in range(total):
             self.visit(ctx.getChild(index))
@@ -46,11 +47,13 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#include.
     def visitInclude(self, ctx:simpleCParser.IncludeContext):
+        print('include')
         return
 
 
     # Visit a parse tree produced by simpleCParser#mFunction.
     def visitMFunction(self, ctx:simpleCParser.MFunctionContext):
+        print('MFunction')
         return_type = self.visit(ctx.getChild(0)) # mtype
         func_name = ctx.getChild(1).getText() # func name
         params = self.visit(ctx.getChild(3)) # func params
@@ -270,7 +273,7 @@ class Visitor(simpleCVisitor):
         self.builders.append(ir.IRBuilder(new_block_true))
         self.local_vars.append({})
 
-        self.visit(ctx.getChild(5))
+        self.visit(ctx.getChild(5)) # body
 
         builder = self.builders[-1]
         builder.branch(self.endifBlock)
@@ -299,7 +302,7 @@ class Visitor(simpleCVisitor):
         self.builders.append(ir.IRBuilder(new_block_true))
         self.local_vars.append({})
 
-        self.visit(ctx.getChild(6))
+        self.visit(ctx.getChild(6)) # body
 
         builder = self.builders[-1]
         builder.branch(self.endifBlock)
@@ -317,7 +320,7 @@ class Visitor(simpleCVisitor):
     def visitElseBlock(self, ctx:simpleCParser.ElseBlockContext):
         self.local_vars.append({})
 
-        self.visit(ctx.getChild(2))
+        self.visit(ctx.getChild(2)) # body
 
         self.local_vars.pop()
         return
@@ -343,7 +346,41 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#whileBlock.
     def visitWhileBlock(self, ctx:simpleCParser.WhileBlockContext):
-        return self.visitChildren(ctx)
+        print('whileBlock')
+        builder = self.builders[-1]
+        whileCond = builder.append_basic_block()
+        whileMain = builder.append_basic_block()
+        whileEnd = builder.append_basic_block()
+        builder.branch(whileCond)
+
+        self.blocks.pop()
+        self.builders.pop()
+        self.blocks.append(whileCond)
+        self.builders.append(ir.IRBuilder(whileCond))
+
+        cond = self.visit(ctx.getChild(2)) # condition
+
+        builder = self.builders[-1]
+        builder.cbranch(cond['name'], whileMain, whileEnd)
+        self.blocks.pop()
+        self.builders.pop()
+
+
+        self.blocks.append(whileMain)
+        self.builders.append(ir.IRBuilder(whileMain))
+        self.local_vars.append({})
+
+        self.visit(ctx.getChild(5)) # body
+
+        builder = self.builders[-1]
+        builder.branch(whileCond)
+        self.blocks.pop()
+        self.builders.pop()
+        self.local_vars.pop()
+
+        self.blocks.append(whileEnd)
+        self.builders.append(ir.IRBuilder(whileEnd))
+        return
 
 
     # Visit a parse tree produced by simpleCParser#forBlock.
@@ -365,6 +402,7 @@ class Visitor(simpleCVisitor):
     def visitReturnBlock(self, ctx:simpleCParser.ReturnBlockContext):
         print('returnBlock')
         builder = self.builders[-1]
+        # print(ctx.getChildCount())
         res = self.visit(ctx.getChild(1))
         ret = builder.ret(res['name'])
         return {
@@ -544,6 +582,7 @@ class Visitor(simpleCVisitor):
     def visitDouble(self, ctx:simpleCParser.DoubleContext):
         if ctx.getChild(0).getText() == '-':
             res = self.visit(ctx.getChild(1))
+            builder = self.builders[-1]
             new_var = builder.neg(res['name'])
             return {
                     'type': res['type'],
@@ -566,6 +605,7 @@ class Visitor(simpleCVisitor):
     def visitInt(self, ctx:simpleCParser.IntContext):
         if ctx.getChild(0).getText() == '-':
             res = self.visit(ctx.getChild(1))
+            builder = self.builders[-1]
             new_var = builder.neg(res['name'])
             return {
                     'type': res['type'],
@@ -639,7 +679,30 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#strlenFunc.
     def visitStrlenFunc(self, ctx:simpleCParser.StrlenFuncContext):
-        return self.visitChildren(ctx)
+        print('strlenFunc')
+        if 'strlen' in self.functions:
+            strlen = self.functions['strlen']
+        else:
+            strlenty = ir.FunctionType(int32, [ir.PointerType(int8)], var_arg=False)
+            strlen = ir.Function(self.module, strlenty, name="strlen")
+            self.functions['strlen'] = strlen
+
+        builder = self.builders[-1]
+        zero = ir.Constant(int32, 0)
+
+        tmp_need_load = self.need_load
+        self.need_load = False
+        res = self.visit(ctx.getChild(2))
+        self.need_load = tmp_need_load
+
+        arg = builder.gep(res['name'], [zero, zero], inbounds=True)
+        ret = builder.call(strlen, [arg])
+
+        return {
+                'type': int32,
+                'const': False,
+                'name': ret
+        }
 
 
     # Visit a parse tree produced by simpleCParser#atoiFunc.
@@ -681,7 +744,6 @@ class Visitor(simpleCVisitor):
                 'const': False,
                 'name': ret
         }
-        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#scanfFunc.
@@ -691,7 +753,29 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#getsFunc.
     def visitGetsFunc(self, ctx:simpleCParser.GetsFuncContext):
-        return self.visitChildren(ctx)
+        print('getsfunc')
+        if 'gets' in self.functions:
+            gets = self.functions['gets']
+        else:
+            getsty = ir.FunctionType(int32, [], var_arg=True)
+            gets = ir.Function(self.module, getsty, name="gets")
+            self.functions['gets'] = gets
+
+        builder = self.builders[-1]
+        zero = ir.Constant(int32, 0)
+
+        tmp_need_load = self.need_load
+        self.need_load = False
+        res = self.visit(ctx.getChild(2))
+        self.need_load = tmp_need_load
+
+        arg = builder.gep(res['name'], [zero, zero], inbounds=True)
+        ret = builder.call(gets, [arg])
+        return {
+                'type': int32,
+                'const': False,
+                'name': ret
+        }
 
 
     # Visit a parse tree produced by simpleCParser#selfDefinedFunc.
