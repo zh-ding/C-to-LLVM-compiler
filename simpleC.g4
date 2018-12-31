@@ -17,13 +17,13 @@ param : mType mID;
 funcBody : body returnBlock;
 
 //语句块/函数快
-body : (block | func)*;
+body : (block | func';')*;
 
 //语句块
 block : initialBlock | arrayInitBlock |  assignBlock | ifBlocks | whileBlock | forBlock | returnBlock;
 
 //初始化语句
-initialBlock : mType (mID ('=' expr)? (',' mID ('=' expr)?)*)? ';';
+initialBlock : mType mID ('=' expr)? (',' mID ('=' expr)?)* ';';
 arrayInitBlock : mType mID '[' mINT ']'';';
 //arrayNoInitBlock : mType mID '[' ']' ';';
 
@@ -72,7 +72,7 @@ arrayItem : mID '[' expr ']';
 
 
 //函数
-func : (strlenFunc | atoiFunc | printfFunc | scanfFunc | getsFunc | selfDefinedFunc)';';
+func : (strlenFunc | atoiFunc | printfFunc | scanfFunc | getsFunc | selfDefinedFunc);
 
 //strlen
 strlenFunc : 'strlen' '(' mID ')';
@@ -91,7 +91,7 @@ scanfFunc : 'scanf' '(' (('&')?mID)(','('&')?mID)* ')';
 getsFunc : 'gets' '(' mID ')';
 //Selfdefined
 
-selfDefinedFunc : mID '('((argument|mID)(','argument|mID)*)? ')';
+selfDefinedFunc : mID '('((argument|mID)(','(argument|mID))*)? ')';
 
 argument : mINT | mDOUBLE | mCHAR | mSTRING;
 
