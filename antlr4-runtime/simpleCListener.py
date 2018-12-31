@@ -197,15 +197,6 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#Neg.
-    def enterNeg(self, ctx:simpleCParser.NegContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#Neg.
-    def exitNeg(self, ctx:simpleCParser.NegContext):
-        pass
-
-
     # Enter a parse tree produced by simpleCParser#identifier.
     def enterIdentifier(self, ctx:simpleCParser.IdentifierContext):
         pass
@@ -224,12 +215,12 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#arrayietm.
-    def enterArrayietm(self, ctx:simpleCParser.ArrayietmContext):
+    # Enter a parse tree produced by simpleCParser#OR.
+    def enterOR(self, ctx:simpleCParser.ORContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#arrayietm.
-    def exitArrayietm(self, ctx:simpleCParser.ArrayietmContext):
+    # Exit a parse tree produced by simpleCParser#OR.
+    def exitOR(self, ctx:simpleCParser.ORContext):
         pass
 
 
@@ -269,6 +260,33 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by simpleCParser#int.
+    def enterInt(self, ctx:simpleCParser.IntContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#int.
+    def exitInt(self, ctx:simpleCParser.IntContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#Neg.
+    def enterNeg(self, ctx:simpleCParser.NegContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#Neg.
+    def exitNeg(self, ctx:simpleCParser.NegContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#arrayietm.
+    def enterArrayietm(self, ctx:simpleCParser.ArrayietmContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#arrayietm.
+    def exitArrayietm(self, ctx:simpleCParser.ArrayietmContext):
+        pass
+
+
     # Enter a parse tree produced by simpleCParser#function.
     def enterFunction(self, ctx:simpleCParser.FunctionContext):
         pass
@@ -278,21 +296,21 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by simpleCParser#AND.
+    def enterAND(self, ctx:simpleCParser.ANDContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#AND.
+    def exitAND(self, ctx:simpleCParser.ANDContext):
+        pass
+
+
     # Enter a parse tree produced by simpleCParser#char.
     def enterChar(self, ctx:simpleCParser.CharContext):
         pass
 
     # Exit a parse tree produced by simpleCParser#char.
     def exitChar(self, ctx:simpleCParser.CharContext):
-        pass
-
-
-    # Enter a parse tree produced by simpleCParser#int.
-    def enterInt(self, ctx:simpleCParser.IntContext):
-        pass
-
-    # Exit a parse tree produced by simpleCParser#int.
-    def exitInt(self, ctx:simpleCParser.IntContext):
         pass
 
 

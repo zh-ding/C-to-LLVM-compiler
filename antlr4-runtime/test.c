@@ -1,41 +1,100 @@
-#include  <string.h>
-#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-int main() {
-	char S[1024];
-	char T[1024];
-	int nxt[1024];
-	int lenS, lenT;
-	int i, j, flag = 0;
+int main(){
+    char expr[1000];
+    int st_num[1000];
+    char st_op[1000];
 
-	gets(S);
-	gets(T);
-	lenS = strlen(S);
-	lenT = strlen(T);
+    int st_num_pt = -1;
+    int st_op_pt = -1;
 
-	nxt[0] = -1;
-	for (i = 1, j = -1; i < lenT;  i = i + 1) {
-		for (; j >= 0 && T[i] != T[j+1]; j = nxt[j]);
-		if (T[i] == T[j+1]) {
-            j = j+1;
-        }
-		nxt[i] = j;
-	}
-
-	for (i = 0, j = -1; i < lenS; i = i + 1) {
-		for (; j >= 0 && S[i] != T[j+1]; j = nxt[j]);
-		if (S[i] == T[j+1]) {
-            j = j + 1;
-        }
-		if (j == lenT-1) {
-			printf("%d\n", i - j);
-			flag = 1;
-			j = nxt[j];
-		}
-	}
-	if (flag == 0){
-		printf("False\n");
+    gets(expr);
+    int len = strlen(expr);
+    int i;
+    for(i = len-1; i >= 0; i = i - 1) {
+        expr[i + 1] = expr[i];
     }
+    expr[0] = '(';
+    expr[len+1] = ')';
+    len = len + 2;
 
-	return 0;
+    i = len - 1;
+    int num = 0;
+    int k = 1;
+    while(i >= 0){
+        if(expr[i] == '+'){
+            while(st_op_pt >= 0 && ((st_op[st_op_pt] == '*') || (st_op[st_op_pt] == '/'))){
+                if(st_op[st_op_pt] == '*') {
+                    st_num[st_num_pt - 1] = st_num[st_num_pt] * st_num[st_num_pt - 1];
+                }
+                else {
+                    st_num[st_num_pt - 1] = st_num[st_num_pt] / st_num[st_num_pt - 1];
+                }
+                st_num_pt = st_num_pt - 1;
+                st_op_pt = st_op_pt - 1;
+            }
+            st_op_pt = st_op_pt + 1;
+            st_op[st_op_pt] = '+';
+            i = i - 1;
+        }else if(expr[i] == '-'){
+            while(st_op_pt >= 0 && ((st_op[st_op_pt] == '*') || (st_op[st_op_pt] == '/'))){
+                if(st_op[st_op_pt] == '*'){
+                    st_num[st_num_pt - 1] = st_num[st_num_pt] * st_num[st_num_pt - 1];
+                }
+                else{
+                    st_num[st_num_pt - 1] = st_num[st_num_pt] / st_num[st_num_pt - 1];
+                }
+                st_num_pt = st_num_pt - 1;
+                st_op_pt = st_op_pt - 1;
+            }
+            st_op_pt = st_op_pt + 1;
+            st_op[st_op_pt] = '-';
+            i = i - 1;
+        }else if(expr[i] == '*'){
+            st_op_pt = st_op_pt + 1;
+            st_op[st_op_pt] = '*';
+            i = i - 1;
+        }else if(expr[i] == '/'){
+            st_op_pt = st_op_pt + 1;
+            st_op[st_op_pt] = '/';
+            i = i - 1;
+        }else if(expr[i] == ')'){
+            st_op_pt = st_op_pt + 1;
+            st_op[st_op_pt] = ')';
+            i = i - 1;
+        }else if(expr[i] == '('){
+            while(st_op[st_op_pt] != ')'){
+                char ch = st_op[st_op_pt];
+                st_op_pt = st_op_pt - 1;
+                if(ch == '+'){
+                    st_num[st_num_pt - 1] = st_num[st_num_pt] + st_num[st_num_pt - 1];
+                }
+                else if(ch == '-'){
+                    st_num[st_num_pt - 1] = st_num[st_num_pt] - st_num[st_num_pt - 1];
+                }
+                else if(ch == '*'){
+                    st_num[st_num_pt - 1] = st_num[st_num_pt] * st_num[st_num_pt - 1];
+                }
+                else if(ch == '/'){
+                    st_num[st_num_pt - 1] = st_num[st_num_pt] / st_num[st_num_pt - 1];
+                }
+                st_num_pt = st_num_pt - 1;
+            }
+            st_op_pt = st_op_pt - 1;
+            i = i - 1;
+        }else{
+            num = 0;
+            k = 1;
+            while(i >= 0 && expr[i] >= '0' && expr[i] <= '9'){
+                num = num + (expr[i] - '0') * k;
+                k = k * 10;
+                i = i - 1;
+            }
+            st_num_pt = st_num_pt + 1;
+            st_num[st_num_pt] = num;
+        }
+    }
+    printf("%d\n", st_num[0]);
+    return 0;
 }

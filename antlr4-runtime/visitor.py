@@ -333,22 +333,23 @@ class Visitor(simpleCVisitor):
         builder = self.builders[-1]
         ret = self.visit(ctx.getChild(0))
         ret = self.toBoolean(ret, notFlag=False)
-        total = ctx.getChildCount()
-        for index in range(1, total, 2):
-            res = self.visit(ctx.getChild(index+1))
-            res = self.toBoolean(res, notFlag=False)
-            new_var = builder.and_(ret['name'], res['name'])
-            ret  = {
-                    'type': ret['type'],
-                    'const': False,
-                    'name': new_var
-            }
+        # total = ctx.getChildCount()
+        # for index in range(1, total, 2):
+        #     res = self.visit(ctx.getChild(index+1))
+        #     res = self.toBoolean(res, notFlag=False)
+        #     new_var = builder.and_(ret['name'], res['name'])
+        #     ret  = {
+        #             'type': ret['type'],
+        #             'const': False,
+        #             'name': new_var
+        #     }
         return ret
 
 
     # Visit a parse tree produced by simpleCParser#whileBlock.
     def visitWhileBlock(self, ctx:simpleCParser.WhileBlockContext):
         print('whileBlock')
+        # print(ctx.getText())
         builder = self.builders[-1]
         whileCond = builder.append_basic_block()
         whileMain = builder.append_basic_block()
@@ -401,6 +402,7 @@ class Visitor(simpleCVisitor):
         self.blocks.append(forCond)
         self.builders.append(ir.IRBuilder(forCond))
 
+        # print(ctx.getChild(4).getText())
         cond = self.visit(ctx.getChild(4)) # condition block
 
         builder = self.builders[-1]
@@ -574,6 +576,35 @@ class Visitor(simpleCVisitor):
         res = self.visit(ctx.getChild(0))
         res = self.toBoolean(res, notFlag = True)
         return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#OR.
+    def visitOR(self, ctx:simpleCParser.ORContext):
+        res1 = self.visit(ctx.getChild(0))
+        res1 = self.toBoolean(res1, notFlag=False)
+        res2 = self.visit(ctx.getChild(2))
+        res2 = self.toBoolean(res2, notFlag=False)
+        builder = self.builders[-1]
+        ret = builder.or_(res1['name'], res2['name'])
+        return {
+                'type': res1['type'],
+                'const': False,
+                'name': ret
+        }
+
+    # Visit a parse tree produced by simpleCParser#AND.
+    def visitAND(self, ctx:simpleCParser.ANDContext):
+        res1 = self.visit(ctx.getChild(0))
+        res1 = self.toBoolean(res1, notFlag=False)
+        res2 = self.visit(ctx.getChild(2))
+        res2 = self.toBoolean(res2, notFlag=False)
+        builder = self.builders[-1]
+        ret = builder.and_(res1['name'], res2['name'])
+        return {
+                'type': res1['type'],
+                'const': False,
+                'name': ret
+        }
 
 
     # Visit a parse tree produced by simpleCParser#identifier.

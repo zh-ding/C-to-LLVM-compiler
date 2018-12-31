@@ -1,16 +1,10 @@
-// to DingZheng
-// I'm so Cai
-
-// Zeyu Wang is the BEST. --By Xun Lu
-
 #include <stdio.h>
 #include <string.h>
 
-char expr[1000];
-int st_num[1000];
-char st_op[1000];
-
 int main(){
+    char expr[1000];
+    int st_num[1000];
+    char st_op[1000];
 
     int st_num_pt = -1;
     int st_op_pt = -1;

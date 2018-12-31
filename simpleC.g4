@@ -38,7 +38,7 @@ ifBlock : 'if' '('condition')' '{' body '}';
 elifBlock : 'else' 'if' '(' condition ')' '{' body '}';
 elseBlock : 'else' '{' body '}';
 
-condition :  expr (Conjunction expr)*;
+condition :  expr;
 
 //while 语句
 whileBlock : 'while' '(' condition ')' '{' body '}';
@@ -57,6 +57,8 @@ expr
     | expr op=('*' | '/' | '%') expr   #MulDiv 
     | expr op=('+' | '-') expr   #AddSub
     | expr op=('==' | '!=' | '<' | '<=' | '>' | '>=') expr #Judge
+    | expr '&&' expr             # AND
+    | expr '||' expr             # OR
     | arrayItem                  #arrayietm
     | (op='-')? mINT                        #int                          
     | (op='-')? mDOUBLE                     #double

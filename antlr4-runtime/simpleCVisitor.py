@@ -114,11 +114,6 @@ class simpleCVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#Neg.
-    def visitNeg(self, ctx:simpleCParser.NegContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by simpleCParser#identifier.
     def visitIdentifier(self, ctx:simpleCParser.IdentifierContext):
         return self.visitChildren(ctx)
@@ -129,8 +124,8 @@ class simpleCVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#arrayietm.
-    def visitArrayietm(self, ctx:simpleCParser.ArrayietmContext):
+    # Visit a parse tree produced by simpleCParser#OR.
+    def visitOR(self, ctx:simpleCParser.ORContext):
         return self.visitChildren(ctx)
 
 
@@ -154,18 +149,33 @@ class simpleCVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by simpleCParser#int.
+    def visitInt(self, ctx:simpleCParser.IntContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#Neg.
+    def visitNeg(self, ctx:simpleCParser.NegContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#arrayietm.
+    def visitArrayietm(self, ctx:simpleCParser.ArrayietmContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by simpleCParser#function.
     def visitFunction(self, ctx:simpleCParser.FunctionContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#char.
-    def visitChar(self, ctx:simpleCParser.CharContext):
+    # Visit a parse tree produced by simpleCParser#AND.
+    def visitAND(self, ctx:simpleCParser.ANDContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#int.
-    def visitInt(self, ctx:simpleCParser.IntContext):
+    # Visit a parse tree produced by simpleCParser#char.
+    def visitChar(self, ctx:simpleCParser.CharContext):
         return self.visitChildren(ctx)
 
 
