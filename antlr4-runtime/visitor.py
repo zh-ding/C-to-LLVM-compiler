@@ -212,9 +212,11 @@ class Visitor(simpleCVisitor):
         # print(rng)
         for i in range(len(rng)):
             index = rng[i]
+            tmp_need_load = self.need_load
             self.need_load = False
             res1 = self.visit(ctx.getChild(index))
-            self.need_load = True
+            self.need_load = tmp_need_load
+
             res = self.assignConvert(res, res1['type'])
             builder.store(res['name'], res1['name'])
             if index > 0:
@@ -385,17 +387,97 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#forBlock.
     def visitForBlock(self, ctx:simpleCParser.ForBlockContext):
-        return self.visitChildren(ctx)
+        print('forBlock')
+        self.visit(ctx.getChild(2)) # initial block
+
+        builder = self.builders[-1]
+        forCond = builder.append_basic_block()
+        forMain = builder.append_basic_block()
+        forEnd = builder.append_basic_block()
+        builder.branch(forCond)
+
+        self.blocks.pop()
+        self.builders.pop()
+        self.blocks.append(forCond)
+        self.builders.append(ir.IRBuilder(forCond))
+
+        cond = self.visit(ctx.getChild(4)) # condition block
+
+        builder = self.builders[-1]
+        builder.cbranch(cond['name'], forMain, forEnd)
+        self.blocks.pop()
+        self.builders.pop()
+
+
+        self.blocks.append(forMain)
+        self.builders.append(ir.IRBuilder(forMain))
+        self.local_vars.append({})
+
+        if (ctx.getChildCount() == 11):
+            self.visit(ctx.getChild(9)) # main body
+
+        self.visit(ctx.getChild(6)) # step block
+
+        builder = self.builders[-1]
+        builder.branch(forCond)
+        self.blocks.pop()
+        self.builders.pop()
+        self.local_vars.pop()
+
+        self.blocks.append(forEnd)
+        self.builders.append(ir.IRBuilder(forEnd))
+        return
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#for1Block.
     def visitFor1Block(self, ctx:simpleCParser.For1BlockContext):
-        return self.visitChildren(ctx)
+        total = ctx.getChildCount()
+        if total == 0:
+            return
+
+        # print(ctx.getChild(0).getText())
+        # print(ctx.getChild(2).getText())
+
+        tmp_need_load = self.need_load
+        self.need_load = False
+        res0 = self.visit(ctx.getChild(0)) # mID
+        self.need_load = tmp_need_load
+
+        res1 = self.visit(ctx.getChild(2)) # expr
+        # print(res1)
+        res1 = self.assignConvert(res1, res0['type'])
+        builder = self.builders[-1]
+        builder.store(res1['name'], res0['name'])
+
+        if total > 3:
+            self.visit(ctx.getChild(4))
+        return
 
 
     # Visit a parse tree produced by simpleCParser#for3Block.
     def visitFor3Block(self, ctx:simpleCParser.For3BlockContext):
-        return self.visitChildren(ctx)
+        total = ctx.getChildCount()
+        if total == 0:
+            return
+
+        # print(ctx.getChild(0).getText())
+        # print(ctx.getChild(2).getText())
+
+        tmp_need_load = self.need_load
+        self.need_load = False
+        res0 = self.visit(ctx.getChild(0)) # mID
+        self.need_load = tmp_need_load
+
+        res1 = self.visit(ctx.getChild(2)) # expr
+        # print(res1)
+        res1 = self.assignConvert(res1, res0['type'])
+        builder = self.builders[-1]
+        builder.store(res1['name'], res0['name'])
+
+        if total > 3:
+            self.visit(ctx.getChild(4))
+        return
 
 
     # Visit a parse tree produced by simpleCParser#returnBlock.
@@ -653,7 +735,12 @@ class Visitor(simpleCVisitor):
         if isinstance(res['type'], ir.types.ArrayType):
             builder = self.builders[-1]
             # print(builder)
+
+            tmp_need_load = self.need_load
+            self.need_load = True
             res1 = self.visit(ctx.getChild(2)) # subscript
+            self.need_load = tmp_need_load
+            
             zero = ir.Constant(int32, 0)
             # print(res['name'])
             new_var = builder.gep(res['name'], [zero, res1['name']], inbounds=True)

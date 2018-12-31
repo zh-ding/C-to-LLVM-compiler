@@ -45,8 +45,8 @@ whileBlock : 'while' '(' condition ')' '{' body '}';
 
 //for 语句
 forBlock : 'for' '(' for1Block  ';' condition ';' for3Block ')' ('{' body '}'|';');
-for1Block :  mID ('=' expr)? (',' for1Block)?|;
-for3Block : mID ('=' expr)? (',' for3Block)?|;
+for1Block :  mID '=' expr (',' for1Block)?|;
+for3Block : mID '=' expr (',' for3Block)?|;
 
 //return 语句
 returnBlock : 'return' + (mINT|mID) + ';';
