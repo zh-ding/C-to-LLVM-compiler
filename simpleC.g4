@@ -1,10 +1,16 @@
 grammar simpleC;
 
-prog :(include)* (mFunction)*;
+prog :(include)* (initialBlock)* (mStruct|mFunction)*;
 //prog : (forBlock)*;
 
 //-------------语法规则----------------------------------------------
 include : '#include' '<' mLIB '>';
+
+//结构体
+mStruct : 'struct' ID '{' (structParam)+ '}'';';
+
+//结构体中参数
+structParam : mType mID (',' mID)* ';';
 
 //函数
 mFunction : mType mID '(' params ')' '{' funcBody '}';
@@ -49,7 +55,7 @@ for1Block :  mID '=' expr (',' for1Block)?|;
 for3Block : mID '=' expr (',' for3Block)?|;
 
 //return 语句
-returnBlock : 'return' + (mINT|mID) + ';';
+returnBlock : 'return' (mINT|mID)* ';';
 
 expr
     : '(' expr ')'               #parens
@@ -91,8 +97,8 @@ scanfFunc : 'scanf' '(' (('&')?mID)(','('&')?mID)* ')';
 
 //gets
 getsFunc : 'gets' '(' mID ')';
-//Selfdefined
 
+//Selfdefined
 selfDefinedFunc : mID '('((argument|mID)(','(argument|mID))*)? ')';
 
 argument : mINT | mDOUBLE | mCHAR | mSTRING;

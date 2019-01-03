@@ -1,4 +1,4 @@
-# Generated from simpleC.g4 by ANTLR 4.7.2
+# Generated from /Users/dingry/Documents/git/C-to-LLVM-compiler/simpleC.g4 by ANTLR 4.7.1
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .simpleCParser import simpleCParser
@@ -23,6 +23,24 @@ class simpleCListener(ParseTreeListener):
 
     # Exit a parse tree produced by simpleCParser#include.
     def exitInclude(self, ctx:simpleCParser.IncludeContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#mStruct.
+    def enterMStruct(self, ctx:simpleCParser.MStructContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#mStruct.
+    def exitMStruct(self, ctx:simpleCParser.MStructContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#structParam.
+    def enterStructParam(self, ctx:simpleCParser.StructParamContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#structParam.
+    def exitStructParam(self, ctx:simpleCParser.StructParamContext):
         pass
 
 

@@ -2,6 +2,13 @@
 #include  <string.h>
 #include <stdlib.h>
 
+int a = 1;
+char b = '1';
+
+struct test{
+	int a;
+	char b;
+};
 
 int main() {
 	char S[1024];
@@ -14,7 +21,7 @@ int main() {
 	gets(T);
 	lenS = strlen(S);
 	lenT = strlen(T);
-
+	return;
 	nxt[0] = -1;
 	for (i = 1, j = -1; i < lenT;  i = i + 1) {
 		for (; j >= 0 && T[i] != T[j+1]; j = nxt[j]);
