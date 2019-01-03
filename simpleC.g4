@@ -1,6 +1,6 @@
 grammar simpleC;
 
-prog :(include)* (initialBlock)* (mStruct|mFunction)*;
+prog :(include)* (initialBlock|arrayInitBlock)* (mStruct|mFunction)*;
 //prog : (forBlock)*;
 
 //-------------语法规则----------------------------------------------

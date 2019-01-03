@@ -167,13 +167,37 @@ class Visitor(simpleCVisitor):
     # Visit a parse tree produced by simpleCParser#initialBlock.
     def visitInitialBlock(self, ctx:simpleCParser.InitialBlockContext):
         print('initialBlock')
+        if len(self.blocks) == 0:   # global value
+            type_ = self.visit(ctx.getChild(0))
+            total = ctx.getChildCount()
+            index = 1
+            while index < total:
+                IDname = ctx.getChild(index).getText()
+                if IDname in self.global_vars: # error!
+                    pass
+                new_var = ir.GlobalVariable(self.module, type_, name=IDname)
+                new_var.linkage = 'common'
+                self.global_vars[IDname] = {
+                    'type': type_,
+                    'name': new_var
+                }
+
+                if ctx.getChild(index+1).getText() != '=':
+                    index += 2
+                else:
+                    res = self.visit(ctx.getChild(index+2))
+                    res = self.assignConvert(res, type_)
+                    builder.store(res['name'], new_var)
+                    index += 4
+            return
+
         builder = self.builders[-1]
         varList = self.local_vars[-1]
 
         type_ = self.visit(ctx.getChild(0))
         total = ctx.getChildCount()
         index = 1
-        while (index < total):
+        while index < total:
             IDname = ctx.getChild(index).getText()
             if IDname in varList:   # error!
                 pass
@@ -198,11 +222,23 @@ class Visitor(simpleCVisitor):
         type_ = self.visit(ctx.getChild(0))
         IDname = ctx.getChild(1).getText()
         Len = int(ctx.getChild(3).getText())
+
+        if len(self.blocks) == 0:   # global value
+            if IDname in self.global_vars: # error!
+                pass
+            new_var = ir.GlobalVariable(self.module, ir.ArrayType(type_, Len), name=IDname)
+            new_var.linkage = 'common'
+            self.global_vars[IDname] = {
+                'type': ir.ArrayType(type_, Len),
+                'name': new_var
+            }
+            return
+
         builder = self.builders[-1]
         varList = self.local_vars[-1]
-        new_var = builder.alloca(ir.ArrayType(type_, Len), name=IDname)
         if IDname in varList: # error!
             pass
+        new_var = builder.alloca(ir.ArrayType(type_, Len), name=IDname)
         varList[IDname] = {
             'type': ir.ArrayType(type_, Len),
             'name': new_var
