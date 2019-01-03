@@ -11,22 +11,26 @@ int main(){
 
     gets(expr);
     int len = strlen(expr);
-    for(int i = len-1; i >= 0; i = i - 1)
+    int i;
+    for(i = len-1; i >= 0; i = i - 1) {
         expr[i + 1] = expr[i];
+    }
     expr[0] = '(';
     expr[len+1] = ')';
     len = len + 2;
 
-    int i = len - 1;
+    i = len - 1;
     int num = 0;
     int k = 1;
     while(i >= 0){
         if(expr[i] == '+'){
-            while(st_op_pt >= 0 && (st_op[st_op_pt] == '*' || st_op[st_op_pt] == '/')){
-                if(st_op[st_op_pt] == '*')
+            while(st_op_pt >= 0 && ((st_op[st_op_pt] == '*') || (st_op[st_op_pt] == '/'))){
+                if(st_op[st_op_pt] == '*') {
                     st_num[st_num_pt - 1] = st_num[st_num_pt] * st_num[st_num_pt - 1];
-                else
+                }
+                else {
                     st_num[st_num_pt - 1] = st_num[st_num_pt] / st_num[st_num_pt - 1];
+                }
                 st_num_pt = st_num_pt - 1;
                 st_op_pt = st_op_pt - 1;
             }
@@ -34,11 +38,13 @@ int main(){
             st_op[st_op_pt] = '+';
             i = i - 1;
         }else if(expr[i] == '-'){
-            while(st_op_pt >= 0 && (st_op[st_op_pt] == '*' || st_op[st_op_pt] == '/')){
-                if(st_op[st_op_pt] == '*')
+            while(st_op_pt >= 0 && ((st_op[st_op_pt] == '*') || (st_op[st_op_pt] == '/'))){
+                if(st_op[st_op_pt] == '*'){
                     st_num[st_num_pt - 1] = st_num[st_num_pt] * st_num[st_num_pt - 1];
-                else
+                }
+                else{
                     st_num[st_num_pt - 1] = st_num[st_num_pt] / st_num[st_num_pt - 1];
+                }
                 st_num_pt = st_num_pt - 1;
                 st_op_pt = st_op_pt - 1;
             }
@@ -61,14 +67,18 @@ int main(){
             while(st_op[st_op_pt] != ')'){
                 char ch = st_op[st_op_pt];
                 st_op_pt = st_op_pt - 1;
-                if(ch == '+')
+                if(ch == '+'){
                     st_num[st_num_pt - 1] = st_num[st_num_pt] + st_num[st_num_pt - 1];
-                else if(ch == '-')
+                }
+                else if(ch == '-'){
                     st_num[st_num_pt - 1] = st_num[st_num_pt] - st_num[st_num_pt - 1];
-                else if(ch == '*')
+                }
+                else if(ch == '*'){
                     st_num[st_num_pt - 1] = st_num[st_num_pt] * st_num[st_num_pt - 1];
-                else if(ch == '/')
+                }
+                else if(ch == '/'){
                     st_num[st_num_pt - 1] = st_num[st_num_pt] / st_num[st_num_pt - 1];
+                }
                 st_num_pt = st_num_pt - 1;
             }
             st_op_pt = st_op_pt - 1;

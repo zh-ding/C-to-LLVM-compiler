@@ -55,7 +55,7 @@ for1Block :  mID '=' expr (',' for1Block)?|;
 for3Block : mID '=' expr (',' for3Block)?|;
 
 //return 语句
-returnBlock : 'return' (mINT|mID)* ';';
+returnBlock : 'return' (mINT|mID)? ';';
 
 expr
     : '(' expr ')'               #parens
@@ -93,7 +93,7 @@ printfFunc
     : 'printf' '(' (mSTRING | mID) (','expr)* ')';
 
 //scanf
-scanfFunc : 'scanf' '(' (('&')?mID)(','('&')?mID)* ')';
+scanfFunc : 'scanf' '(' mSTRING (','('&')?(mID|arrayItem))* ')';
 
 //gets
 getsFunc : 'gets' '(' mID ')';

@@ -40,15 +40,25 @@ class Visitor(simpleCVisitor):
         print('Prog')
         total = ctx.getChildCount()
         for index in range(total):
+            # print(ctx.getChild(index).getRuleIndex())
             self.visit(ctx.getChild(index))
         return
-        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#include.
     def visitInclude(self, ctx:simpleCParser.IncludeContext):
         print('include')
         return
+
+
+    # Visit a parse tree produced by simpleCParser#mStruct.
+    def visitMStruct(self, ctx:simpleCParser.MStructContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#structParam.
+    def visitStructParam(self, ctx:simpleCParser.StructParamContext):
+        return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#mFunction.
@@ -125,6 +135,8 @@ class Visitor(simpleCVisitor):
         total = ctx.getChildCount()
         for index in range(total):
             self.visit(ctx.getChild(index))
+            if self.blocks[-1].is_terminated:
+                break
         return
         # return self.visitChildren(ctx)
 
@@ -277,8 +289,9 @@ class Visitor(simpleCVisitor):
 
         self.visit(ctx.getChild(5)) # body
 
-        builder = self.builders[-1]
-        builder.branch(self.endifBlock)
+        if not self.blocks[-1].is_terminated:
+            builder = self.builders[-1]
+            builder.branch(self.endifBlock)
 
         self.blocks.pop()
         self.builders.pop()
@@ -306,8 +319,9 @@ class Visitor(simpleCVisitor):
 
         self.visit(ctx.getChild(6)) # body
 
-        builder = self.builders[-1]
-        builder.branch(self.endifBlock)
+        if not self.blocks[-1].is_terminated:
+            builder = self.builders[-1]
+            builder.branch(self.endifBlock)
 
         self.blocks.pop()
         self.builders.pop()
@@ -486,7 +500,15 @@ class Visitor(simpleCVisitor):
     def visitReturnBlock(self, ctx:simpleCParser.ReturnBlockContext):
         print('returnBlock')
         builder = self.builders[-1]
-        # print(ctx.getChildCount())
+
+        if ctx.getChildCount() == 2:
+            ret = builder.ret_void()
+            return {
+                    'type': void,
+                    'const': False,
+                    'name': ret
+            }
+
         res = self.visit(ctx.getChild(1))
         ret = builder.ret(res['name'])
         return {
@@ -844,17 +866,16 @@ class Visitor(simpleCVisitor):
         # print(ctx.getChildCount())
         # print(ctx.getText())
         if ctx.getChildCount() == 4:
-            res = self.visit(ctx.getChild(2))
+            res = self.visit(ctx.getChild(2)) # MString
             arg = builder.gep(res['name'], [zero, zero], inbounds=True)
             ret = builder.call(printf, [arg])
         else:
-            res = self.visit(ctx.getChild(2))
+            res = self.visit(ctx.getChild(2)) # MString
             args = [builder.gep(res['name'], [zero, zero], inbounds=True)]
 
             total = ctx.getChildCount()
             for index in range(4, total-1, 2):
                 res = self.visit(ctx.getChild(index))
-                # print(res)
                 args.append(res['name'])
             ret = builder.call(printf, args)
         return {
@@ -866,7 +887,43 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#scanfFunc.
     def visitScanfFunc(self, ctx:simpleCParser.ScanfFuncContext):
-        return self.visitChildren(ctx)
+        print('scanfFunc')
+        if 'scanf' in self.functions:
+            scanf = self.functions['scanf']
+        else:
+            scanfty = ir.FunctionType(int32, [ir.PointerType(int8)], var_arg=True)
+            scanf = ir.Function(self.module, scanfty, name="scanf")
+            self.functions['scanf'] = scanf
+
+        builder = self.builders[-1]
+        zero = ir.Constant(int32, 0)
+        res = self.visit(ctx.getChild(2)) # MString
+        args = [builder.gep(res['name'], [zero, zero], inbounds=True), ]
+
+        total = ctx.getChildCount()
+        index = 4
+        while index < total-1:
+            if ctx.getChild(index).getText() == '&':
+                tmp_need_load = self.need_load
+                self.need_load = False
+                res = self.visit(ctx.getChild(index+1))
+                self.need_load = tmp_need_load
+                args.append(res['name'])
+                index += 3
+            else:
+                tmp_need_load = self.need_load
+                self.need_load = True
+                res = self.visit(ctx.getChild(index))
+                self.need_load = tmp_need_load
+                args.append(res['name'])
+                index += 2
+
+        ret = builder.call(scanf, args)
+        return {
+                'type': int32,
+                'const': False,
+                'name': ret
+        }
 
 
     # Visit a parse tree produced by simpleCParser#getsFunc.
