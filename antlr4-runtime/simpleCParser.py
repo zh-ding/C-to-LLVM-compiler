@@ -69,11 +69,11 @@ def serializedATN():
         buf.write("]\3\2\2\2]c\3\2\2\2^\\\3\2\2\2_b\5\6\4\2`b\5\n\6\2a_\3")
         buf.write("\2\2\2a`\3\2\2\2be\3\2\2\2ca\3\2\2\2cd\3\2\2\2d\3\3\2")
         buf.write("\2\2ec\3\2\2\2fg\7\3\2\2gh\7\4\2\2hi\5P)\2ij\7\5\2\2j")
-        buf.write("\5\3\2\2\2kl\7\6\2\2lm\7+\2\2mo\7\7\2\2np\5\b\5\2on\3")
-        buf.write("\2\2\2pq\3\2\2\2qo\3\2\2\2qr\3\2\2\2rs\3\2\2\2st\7\b\2")
-        buf.write("\2tu\7\t\2\2u\7\3\2\2\2vw\5\62\32\2w|\5F$\2xy\7\n\2\2")
-        buf.write("y{\5F$\2zx\3\2\2\2{~\3\2\2\2|z\3\2\2\2|}\3\2\2\2}\177")
-        buf.write("\3\2\2\2~|\3\2\2\2\177\u0080\7\t\2\2\u0080\t\3\2\2\2\u0081")
+        buf.write("\5\3\2\2\2kl\7\6\2\2lm\5F$\2mo\7\7\2\2np\5\b\5\2on\3\2")
+        buf.write("\2\2pq\3\2\2\2qo\3\2\2\2qr\3\2\2\2rs\3\2\2\2st\7\b\2\2")
+        buf.write("tu\7\t\2\2u\7\3\2\2\2vw\5\62\32\2w|\5F$\2xy\7\n\2\2y{")
+        buf.write("\5F$\2zx\3\2\2\2{~\3\2\2\2|z\3\2\2\2|}\3\2\2\2}\177\3")
+        buf.write("\2\2\2~|\3\2\2\2\177\u0080\7\t\2\2\u0080\t\3\2\2\2\u0081")
         buf.write("\u0082\5\62\32\2\u0082\u0083\5F$\2\u0083\u0084\7\13\2")
         buf.write("\2\u0084\u0085\5\f\7\2\u0085\u0086\7\f\2\2\u0086\u0087")
         buf.write("\7\7\2\2\u0087\u0088\5\20\t\2\u0088\u0089\7\b\2\2\u0089")
@@ -548,8 +548,9 @@ class simpleCParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def ID(self):
-            return self.getToken(simpleCParser.ID, 0)
+        def mID(self):
+            return self.getTypedRuleContext(simpleCParser.MIDContext,0)
+
 
         def structParam(self, i:int=None):
             if i is None:
@@ -588,7 +589,7 @@ class simpleCParser ( Parser ):
             self.state = 105
             self.match(simpleCParser.T__3)
             self.state = 106
-            self.match(simpleCParser.ID)
+            self.mID()
             self.state = 107
             self.match(simpleCParser.T__4)
             self.state = 109 

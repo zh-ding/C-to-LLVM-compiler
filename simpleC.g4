@@ -7,7 +7,7 @@ prog :(include)* (initialBlock|arrayInitBlock)* (mStruct|mFunction)*;
 include : '#include' '<' mLIB '>';
 
 //结构体
-mStruct : 'struct' ID '{' (structParam)+ '}'';';
+mStruct : 'struct' mID '{' (structParam)+ '}'';';
 
 //结构体中参数
 structParam : mType mID (',' mID)* ';';
