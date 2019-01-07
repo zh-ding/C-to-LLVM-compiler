@@ -1,4 +1,4 @@
-# Generated from simpleC.g4 by ANTLR 4.7.2
+# Generated from /Users/dingry/Documents/git/C-to-LLVM-compiler/simpleC.g4 by ANTLR 4.7.1
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .simpleCParser import simpleCParser
@@ -66,6 +66,11 @@ class simpleCVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by simpleCParser#arrayInitBlock.
     def visitArrayInitBlock(self, ctx:simpleCParser.ArrayInitBlockContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#structInitBlock.
+    def visitStructInitBlock(self, ctx:simpleCParser.StructInitBlockContext):
         return self.visitChildren(ctx)
 
 
@@ -169,8 +174,8 @@ class simpleCVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#arrayietm.
-    def visitArrayietm(self, ctx:simpleCParser.ArrayietmContext):
+    # Visit a parse tree produced by simpleCParser#arrayitem.
+    def visitArrayitem(self, ctx:simpleCParser.ArrayitemContext):
         return self.visitChildren(ctx)
 
 
@@ -189,6 +194,11 @@ class simpleCVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by simpleCParser#structmember.
+    def visitStructmember(self, ctx:simpleCParser.StructmemberContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by simpleCParser#Judge.
     def visitJudge(self, ctx:simpleCParser.JudgeContext):
         return self.visitChildren(ctx)
@@ -196,6 +206,26 @@ class simpleCVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by simpleCParser#mType.
     def visitMType(self, ctx:simpleCParser.MTypeContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#mArray.
+    def visitMArray(self, ctx:simpleCParser.MArrayContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#mVoid.
+    def visitMVoid(self, ctx:simpleCParser.MVoidContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#mStructType.
+    def visitMStructType(self, ctx:simpleCParser.MStructTypeContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#structMember.
+    def visitStructMember(self, ctx:simpleCParser.StructMemberContext):
         return self.visitChildren(ctx)
 
 

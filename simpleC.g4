@@ -1,6 +1,6 @@
 grammar simpleC;
 
-prog :(include)* (initialBlock|arrayInitBlock)* (mStruct|mFunction)*;
+prog :(include)* (initialBlock|arrayInitBlock|structInitBlock|mStruct|mFunction)*;
 //prog : (forBlock)*;
 
 //-------------语法规则----------------------------------------------
@@ -10,10 +10,10 @@ include : '#include' '<' mLIB '>';
 mStruct : 'struct' mID '{' (structParam)+ '}'';';
 
 //结构体中参数
-structParam : mType mID (',' mID)* ';';
+structParam : mType (mID|mArray) (',' (mID|mArray))* ';';
 
 //函数
-mFunction : mType mID '(' params ')' '{' funcBody '}';
+mFunction : (mType|mVoid) mID '(' params ')' '{' funcBody '}';
 
 //函数参数
 params : param (','param)* |;
@@ -26,16 +26,16 @@ funcBody : body returnBlock;
 body : (block | func';')*;
 
 //语句块
-block : initialBlock | arrayInitBlock |  assignBlock | ifBlocks | whileBlock | forBlock | returnBlock;
+block : initialBlock | arrayInitBlock | structInitBlock | assignBlock | ifBlocks | whileBlock | forBlock | returnBlock;
 
 //初始化语句
-initialBlock : mType mID ('=' expr)? (',' mID ('=' expr)?)* ';';
-arrayInitBlock : mType mID '[' mINT ']'';';
-//arrayNoInitBlock : mType mID '[' ']' ';';
+initialBlock : (mType) mID ('[' mINT ']')? ('=' expr)? (',' mID ('=' expr)?)* ';';
+arrayInitBlock : mType mID '[' mINT ']'';'; 
+structInitBlock : mStructType mID (mID|mArray)';';
 
 
 //赋值语句
-assignBlock : ((arrayItem|mID) '=')+  expr ';';
+assignBlock : ((arrayItem|mID|structMember) '=')+  expr ';';
 
 
 //if 语句
@@ -65,9 +65,10 @@ expr
     | expr op=('==' | '!=' | '<' | '<=' | '>' | '>=') expr #Judge
     | expr '&&' expr             # AND
     | expr '||' expr             # OR
-    | arrayItem                  #arrayietm
-    | (op='-')? mINT                        #int                          
-    | (op='-')? mDOUBLE                     #double
+    | arrayItem                  #arrayitem
+    | structMember               #structmember
+    | (op='-')? mINT             #int                          
+    | (op='-')? mDOUBLE          #double
     | mCHAR                       #char
     | mSTRING                     #string             
     | mID                         #identifier   
@@ -75,6 +76,14 @@ expr
     ;
 
 mType : 'int'| 'double'| 'char'| 'string';
+
+mArray : mID '[' mINT ']'; 
+
+mVoid : 'void';
+
+mStructType : 'struct';
+
+structMember: (mID | arrayItem)'.'(mID | arrayItem);
 
 arrayItem : mID '[' expr ']';
 

@@ -1,7 +1,6 @@
 #include  <string.h>
 #include <stdlib.h>
 
-
 int main() {
 	char S[1024];
 	char T[1024];

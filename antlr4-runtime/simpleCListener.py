@@ -1,4 +1,4 @@
-# Generated from simpleC.g4 by ANTLR 4.7.2
+# Generated from /Users/dingry/Documents/git/C-to-LLVM-compiler/simpleC.g4 by ANTLR 4.7.1
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .simpleCParser import simpleCParser
@@ -113,6 +113,15 @@ class simpleCListener(ParseTreeListener):
 
     # Exit a parse tree produced by simpleCParser#arrayInitBlock.
     def exitArrayInitBlock(self, ctx:simpleCParser.ArrayInitBlockContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#structInitBlock.
+    def enterStructInitBlock(self, ctx:simpleCParser.StructInitBlockContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#structInitBlock.
+    def exitStructInitBlock(self, ctx:simpleCParser.StructInitBlockContext):
         pass
 
 
@@ -296,12 +305,12 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#arrayietm.
-    def enterArrayietm(self, ctx:simpleCParser.ArrayietmContext):
+    # Enter a parse tree produced by simpleCParser#arrayitem.
+    def enterArrayitem(self, ctx:simpleCParser.ArrayitemContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#arrayietm.
-    def exitArrayietm(self, ctx:simpleCParser.ArrayietmContext):
+    # Exit a parse tree produced by simpleCParser#arrayitem.
+    def exitArrayitem(self, ctx:simpleCParser.ArrayitemContext):
         pass
 
 
@@ -332,6 +341,15 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by simpleCParser#structmember.
+    def enterStructmember(self, ctx:simpleCParser.StructmemberContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#structmember.
+    def exitStructmember(self, ctx:simpleCParser.StructmemberContext):
+        pass
+
+
     # Enter a parse tree produced by simpleCParser#Judge.
     def enterJudge(self, ctx:simpleCParser.JudgeContext):
         pass
@@ -347,6 +365,42 @@ class simpleCListener(ParseTreeListener):
 
     # Exit a parse tree produced by simpleCParser#mType.
     def exitMType(self, ctx:simpleCParser.MTypeContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#mArray.
+    def enterMArray(self, ctx:simpleCParser.MArrayContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#mArray.
+    def exitMArray(self, ctx:simpleCParser.MArrayContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#mVoid.
+    def enterMVoid(self, ctx:simpleCParser.MVoidContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#mVoid.
+    def exitMVoid(self, ctx:simpleCParser.MVoidContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#mStructType.
+    def enterMStructType(self, ctx:simpleCParser.MStructTypeContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#mStructType.
+    def exitMStructType(self, ctx:simpleCParser.MStructTypeContext):
+        pass
+
+
+    # Enter a parse tree produced by simpleCParser#structMember.
+    def enterStructMember(self, ctx:simpleCParser.StructMemberContext):
+        pass
+
+    # Exit a parse tree produced by simpleCParser#structMember.
+    def exitStructMember(self, ctx:simpleCParser.StructMemberContext):
         pass
 
 

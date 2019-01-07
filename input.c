@@ -7,7 +7,7 @@ char b = '1';
 
 struct test{
 	int a;
-	char b;
+	char b[10];
 };
 
 int main() {
@@ -16,7 +16,11 @@ int main() {
 	int nxt[1024];
 	int lenS, lenT;
 	int i, j, flag = 0;
-
+	struct test myTest[2];
+	myTest[0].a=myTest[1].b[1];
+	if(myTest[0].a != 0){
+		return 0;
+	}
 	gets(S);
 	gets(T);
 	lenS = strlen(S);
