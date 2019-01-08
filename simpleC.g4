@@ -1,19 +1,19 @@
 grammar simpleC;
 
-prog :(include)* (initialBlock|arrayInitBlock|structInitBlock|mStruct|mFunction)*;
+prog :(include)* (initialBlock|arrayInitBlock|structInitBlock|mStructDef|mFunction)*;
 //prog : (forBlock)*;
 
 //-------------语法规则----------------------------------------------
 include : '#include' '<' mLIB '>';
 
 //结构体
-mStruct : 'struct' mID '{' (structParam)+ '}'';';
+mStructDef : mStruct '{' (structParam)+ '}'';';
 
 //结构体中参数
-structParam : mType (mID|mArray) (',' (mID|mArray))* ';';
+structParam : (mType|mStruct) (mID|mArray) (',' (mID|mArray))* ';';
 
 //函数
-mFunction : (mType|mVoid) mID '(' params ')' '{' funcBody '}';
+mFunction : (mType|mVoid|mStruct) mID '(' params ')' '{' funcBody '}';
 
 //函数参数
 params : param (','param)* |;
@@ -31,7 +31,7 @@ block : initialBlock | arrayInitBlock | structInitBlock | assignBlock | ifBlocks
 //初始化语句
 initialBlock : (mType) mID ('[' mINT ']')? ('=' expr)? (',' mID ('=' expr)?)* ';';
 arrayInitBlock : mType mID '[' mINT ']'';'; 
-structInitBlock : mStructType mID (mID|mArray)';';
+structInitBlock : mStruct (mID|mArray)';';
 
 
 //赋值语句
@@ -81,7 +81,7 @@ mArray : mID '[' mINT ']';
 
 mVoid : 'void';
 
-mStructType : 'struct';
+mStruct : 'struct' mID;
 
 structMember: (mID | arrayItem)'.'(mID | arrayItem);
 

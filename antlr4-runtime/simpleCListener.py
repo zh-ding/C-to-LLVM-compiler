@@ -26,12 +26,12 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#mStruct.
-    def enterMStruct(self, ctx:simpleCParser.MStructContext):
+    # Enter a parse tree produced by simpleCParser#mStructDef.
+    def enterMStructDef(self, ctx:simpleCParser.MStructDefContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#mStruct.
-    def exitMStruct(self, ctx:simpleCParser.MStructContext):
+    # Exit a parse tree produced by simpleCParser#mStructDef.
+    def exitMStructDef(self, ctx:simpleCParser.MStructDefContext):
         pass
 
 
@@ -386,12 +386,12 @@ class simpleCListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by simpleCParser#mStructType.
-    def enterMStructType(self, ctx:simpleCParser.MStructTypeContext):
+    # Enter a parse tree produced by simpleCParser#mStruct.
+    def enterMStruct(self, ctx:simpleCParser.MStructContext):
         pass
 
-    # Exit a parse tree produced by simpleCParser#mStructType.
-    def exitMStructType(self, ctx:simpleCParser.MStructTypeContext):
+    # Exit a parse tree produced by simpleCParser#mStruct.
+    def exitMStruct(self, ctx:simpleCParser.MStructContext):
         pass
 
 

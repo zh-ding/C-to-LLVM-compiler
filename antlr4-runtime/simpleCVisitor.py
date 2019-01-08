@@ -19,8 +19,8 @@ class simpleCVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#mStruct.
-    def visitMStruct(self, ctx:simpleCParser.MStructContext):
+    # Visit a parse tree produced by simpleCParser#mStructDef.
+    def visitMStructDef(self, ctx:simpleCParser.MStructDefContext):
         return self.visitChildren(ctx)
 
 
@@ -219,8 +219,8 @@ class simpleCVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by simpleCParser#mStructType.
-    def visitMStructType(self, ctx:simpleCParser.MStructTypeContext):
+    # Visit a parse tree produced by simpleCParser#mStruct.
+    def visitMStruct(self, ctx:simpleCParser.MStructContext):
         return self.visitChildren(ctx)
 
 
