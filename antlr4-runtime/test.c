@@ -23,12 +23,12 @@ int foo(int a, int b) {
 
 int main() {
     int i;
-    int c[10];
-    for (i = 0; i < 10; i = i+1) {
-        scanf("%d", &x[i].a);
-    }
-    for (i = 0; i < 10; i = i+1) {
-        printf("x[%d].a=%d\n", i, x[i].a);
+    i = 0;
+    if (!i){
+        printf("i == 0\n");
+    } else
+    {
+        printf("i != 0\n");
     }
     return 0;
 }

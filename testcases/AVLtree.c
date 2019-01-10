@@ -10,7 +10,7 @@ struct AVLNode{
 int root;
 
 struct AVLNode nodes[10000];
-int avai = 1;
+int avai;
 
 int max(int a, int b){
 	if(a > b) {
@@ -21,8 +21,9 @@ int max(int a, int b){
 
 void initTree(){
 	int i;
+	avai = 1;
 	root = 0;
-	for(i = 0; i < 100; i=i+1){
+	for(i = 0; i < 10000; i=i+1){
 		nodes[i].is_null = 1;
 		nodes[i].height = 0;
 		nodes[i].left = 0;
@@ -33,7 +34,7 @@ void initTree(){
 
 int getHeight(int node){
 	int ret;
-	if (!nodes[node].is_null) {
+	if (nodes[node].is_null == 0) {
 		ret = nodes[node].height;
 		return ret;
 	}
@@ -97,9 +98,9 @@ int rightLeftRotation(int node){
 
 int insert(int node, int elem){
 	int param, p1, p2;
-	if(nodes[node].is_null){
+	if(nodes[node].is_null != 0){
 		int i = avai;
-		while(!nodes[i].is_null) {i = i + 1;}
+		while(nodes[i].is_null == 0) {i = i + 1;}
 		nodes[i].is_null = 0;
 		nodes[i].elem = elem;
 		avai = i + 1;
@@ -144,11 +145,12 @@ int insert(int node, int elem){
 
 void addNode(int elem){
 	root = insert(root, elem);
+	return;
 }
 
 int search(int node, int elem){
 	int ret, p;
-	if(nodes[node].is_null) {
+	if(nodes[node].is_null != 0) {
 		return 0;
 	}
 	if(elem == nodes[node].elem) {
@@ -164,6 +166,7 @@ int search(int node, int elem){
 		ret = search(p, elem);
 		return ret;
 	}
+	return 0;
 }
 
 int searchNode(int elem){
@@ -179,19 +182,19 @@ void removeNode(int elem){
 }
 
 void printNode(int node){
-	if(nodes[node].is_null){
+	if(nodes[node].is_null != 0){
 		printf("NULL\n");
 		return;
 	}
 	printf("%d left child is ", nodes[node].elem);
-	if(nodes[nodes[node].left].is_null) {
+	if(nodes[nodes[node].left].is_null != 0) {
 		printf("NULL, right child is ");
 	}
 	else {
 		printf("%d, right child is ", nodes[nodes[node].left].elem);
 	}
 
-	if(nodes[nodes[node].right].is_null) {
+	if(nodes[nodes[node].right].is_null != 0) {
 		printf("NULL\n");
 	}
 	else{
@@ -201,15 +204,15 @@ void printNode(int node){
 }
 
 void printAVL(int node){
-	if(nodes[node].is_null) {
+	if(nodes[node].is_null != 0) {
 		return;
 	}
 	printNode(node);
 	int p;
 	p = nodes[node].left;
-    printAVL(nodes[node].left);
+    printAVL(p);
     p = nodes[node].right;
-    printAVL(nodes[node].right);
+    printAVL(p);
     return;
 }
 
@@ -218,7 +221,7 @@ int main(){
 	initTree();
 
 	while(1){
-		scanf("%d %d", &comm, &elem);
+		scanf("%d%d", &comm, &elem);
 		if(comm == 0){
 			addNode(elem);
 			printAVL(root);

@@ -288,6 +288,7 @@ class Visitor(simpleCVisitor):
     # Visit a parse tree produced by simpleCParser#funcBody.
     def visitFuncBody(self, ctx:simpleCParser.FuncBodyContext):
         total = ctx.getChildCount()
+        # print(ctx.getText())
         for index in range(total):
             self.visit(ctx.getChild(index))
         return
@@ -296,6 +297,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#body.
     def visitBody(self, ctx:simpleCParser.BodyContext):
+        print('body')
         total = ctx.getChildCount()
         for index in range(total):
             self.visit(ctx.getChild(index))
@@ -351,8 +353,10 @@ class Visitor(simpleCVisitor):
                     index += 2
                 else:
                     res = self.visit(ctx.getChild(index+2))
-                    res = self.assignConvert(res, type_)
-                    builder.store(res['name'], new_var)
+                    # res = self.assignConvert(res, type_)
+                    # builder.store(res['name'], new_var)
+                    # help(res['name'])
+                    new_var.initializer = ir.Constant(res['type'], res['name'])
                     index += 4
             return
 
@@ -366,6 +370,7 @@ class Visitor(simpleCVisitor):
             IDname = ctx.getChild(index).getText()
             if IDname in varList:   # error!
                 pass
+            
             new_var = builder.alloca(type_, name=IDname)
             varList[IDname] = {
                 'type': type_,
@@ -444,6 +449,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#ifBlocks.
     def visitIfBlocks(self, ctx:simpleCParser.IfBlocksContext):
+        print('ifblocks')
         builder = self.builders[-1]
         total = ctx.getChildCount()
         ifblocks = builder.append_basic_block()
@@ -545,7 +551,8 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#condition.
     def visitCondition(self, ctx:simpleCParser.ConditionContext):
-        builder = self.builders[-1]
+        print('condition')
+        # builder = self.builders[-1]
         ret = self.visit(ctx.getChild(0))
         ret = self.toBoolean(ret, notFlag=False)
         # total = ctx.getChildCount()
@@ -777,14 +784,14 @@ class Visitor(simpleCVisitor):
             op = '!='
         builder = self.builders[-1]
         if result['type'] == int8 or result['type'] == int32:
-            new_var = builder.icmp_signed(op, a['name'], ir.Constant(result['type'], 0))
+            new_var = builder.icmp_signed(op, result['name'], ir.Constant(result['type'], 0))
             return {
                     'tpye': int1,
                     'const': False,
                     'name': new_var
             }
         elif result['type'] == double:
-            new_var = builder.fcmp_ordered(op, a['name'], ir.Constant(double, 0))
+            new_var = builder.fcmp_ordered(op, result['name'], ir.Constant(double, 0))
             return {
                     'tpye': int1,
                     'const': False,
@@ -794,7 +801,8 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#Neg.
     def visitNeg(self, ctx:simpleCParser.NegContext):
-        res = self.visit(ctx.getChild(0))
+        print(ctx.getChild(1).getText())
+        res = self.visit(ctx.getChild(1))
         res = self.toBoolean(res, notFlag = True)
         return self.visitChildren(ctx)
 

@@ -2,89 +2,94 @@
 target triple = "x86_64-pc-linux-gnu"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
-@"a" = common global i32 undef
-@"b" = common global i32 undef
-@"d" = common global [10 x i32] undef
-@"x" = common global [10 x {i32, [10 x double]}] zeroinitializer
-define void @"void_foo"() 
-{
-void_foo.entry:
-  %".2" = getelementptr inbounds [10 x i8], [10 x i8]* @".str0", i32 0, i32 0
-  %".3" = call i32 (i8*, ...) @"printf"(i8* %".2")
-  ret void
-}
-
-declare i32 @"printf"(i8* %".1", ...) 
-
-@".str0" = constant [10 x i8] c"void_foo\0a\00"
-define i32 @"foo"(i32 %"a", i32 %"b") 
-{
-foo.entry:
-  %".4" = alloca i32
-  store i32 %"a", i32* %".4"
-  %".6" = alloca i32
-  store i32 %"b", i32* %".6"
-  br label %".8"
-.8:
-  %".11" = load i32, i32* %".4"
-  %".12" = load i32, i32* %".6"
-  %".13" = icmp sgt i32 %".11", %".12"
-  br i1 %".13", label %".14", label %".15"
-.9:
-  %".20" = load i32, i32* %".6"
-  ret i32 %".20"
-.14:
-  %".17" = load i32, i32* %".4"
-  ret i32 %".17"
-.15:
-  br label %".9"
-}
-
 define i32 @"main"() 
 {
 main.entry:
+  %"s" = alloca [1024 x i8]
+  %"len" = alloca i32
   %"i" = alloca i32
-  %"c" = alloca [10 x i32]
-  store i32 0, i32* %"i"
-  br label %".3"
-.3:
-  %".7" = load i32, i32* %"i"
-  %".8" = icmp slt i32 %".7", 10
-  br i1 %".8", label %".4", label %".5"
-.4:
-  %".10" = getelementptr inbounds [3 x i8], [3 x i8]* @".str1", i32 0, i32 0
-  %".11" = load i32, i32* %"i"
-  %".12" = getelementptr inbounds [10 x {i32, [10 x double]}], [10 x {i32, [10 x double]}]* @"x", i32 0, i32 %".11"
-  %".13" = getelementptr inbounds {i32, [10 x double]}, {i32, [10 x double]}* %".12", i32 0, i32 0
-  %".14" = call i32 (i8*, ...) @"scanf"(i8* %".10", i32* %".13")
-  %".15" = load i32, i32* %"i"
-  %".16" = add i32 %".15", 1
-  store i32 %".16", i32* %"i"
-  br label %".3"
-.5:
-  store i32 0, i32* %"i"
-  br label %".20"
-.20:
-  %".24" = load i32, i32* %"i"
-  %".25" = icmp slt i32 %".24", 10
-  br i1 %".25", label %".21", label %".22"
-.21:
-  %".27" = getelementptr inbounds [12 x i8], [12 x i8]* @".str2", i32 0, i32 0
-  %".28" = load i32, i32* %"i"
-  %".29" = load i32, i32* %"i"
-  %".30" = getelementptr inbounds [10 x {i32, [10 x double]}], [10 x {i32, [10 x double]}]* @"x", i32 0, i32 %".29"
-  %".31" = getelementptr inbounds {i32, [10 x double]}, {i32, [10 x double]}* %".30", i32 0, i32 0
-  %".32" = load i32, i32* %".31"
-  %".33" = call i32 (i8*, ...) @"printf"(i8* %".27", i32 %".28", i32 %".32")
-  %".34" = load i32, i32* %"i"
-  %".35" = add i32 %".34", 1
-  store i32 %".35", i32* %"i"
-  br label %".20"
-.22:
+  %"flag" = alloca i32
+  store i32 0, i32* %"flag"
+  %".3" = getelementptr inbounds [1024 x i8], [1024 x i8]* %"s", i32 0, i32 0
+  %".4" = call i32 (...) @"gets"(i8* %".3")
+  %".5" = getelementptr inbounds [1024 x i8], [1024 x i8]* %"s", i32 0, i32 0
+  %".6" = call i32 @"strlen"(i8* %".5")
+  store i32 %".6", i32* %"len"
+  br label %".8"
+.8:
+  %".11" = load i32, i32* %"len"
+  %".12" = icmp slt i32 %".11", 0
+  %".13" = load i32, i32* %"len"
+  %".14" = icmp sgt i32 %".13", 1024
+  %".15" = or i1 %".12", %".14"
+  br i1 %".15", label %".16", label %".17"
+.9:
   ret i32 0
+.16:
+  %".19" = getelementptr inbounds [17 x i8], [17 x i8]* @".str0", i32 0, i32 0
+  %".20" = call i32 (i8*, ...) @"printf"(i8* %".19")
+  br label %".9"
+.17:
+  store i32 0, i32* %"i"
+  br label %".23"
+.23:
+  %".27" = load i32, i32* %"i"
+  %".28" = load i32, i32* %"i"
+  %".29" = add i32 %".27", %".28"
+  %".30" = load i32, i32* %"len"
+  %".31" = icmp slt i32 %".29", %".30"
+  %".32" = load i32, i32* %"flag"
+  %".33" = icmp eq i32 %".32", 0
+  %".34" = and i1 %".31", %".33"
+  br i1 %".34", label %".24", label %".25"
+.24:
+  br label %".36"
+.25:
+  br label %".61"
+.36:
+  %".39" = load i32, i32* %"i"
+  %".40" = getelementptr inbounds [1024 x i8], [1024 x i8]* %"s", i32 0, i32 %".39"
+  %".41" = load i8, i8* %".40"
+  %".42" = load i32, i32* %"len"
+  %".43" = sub i32 %".42", 1
+  %".44" = load i32, i32* %"i"
+  %".45" = sub i32 %".43", %".44"
+  %".46" = getelementptr inbounds [1024 x i8], [1024 x i8]* %"s", i32 0, i32 %".45"
+  %".47" = load i8, i8* %".46"
+  %".48" = icmp ne i8 %".41", %".47"
+  br i1 %".48", label %".49", label %".50"
+.37:
+  %".57" = load i32, i32* %"i"
+  %".58" = add i32 %".57", 1
+  store i32 %".58", i32* %"i"
+  br label %".23"
+.49:
+  %".52" = getelementptr inbounds [7 x i8], [7 x i8]* @".str1", i32 0, i32 0
+  %".53" = call i32 (i8*, ...) @"printf"(i8* %".52")
+  store i32 1, i32* %"flag"
+  br label %".37"
+.50:
+  br label %".37"
+.61:
+  %".64" = load i32, i32* %"flag"
+  %".65" = icmp eq i32 %".64", 0
+  br i1 %".65", label %".66", label %".67"
+.62:
+  br label %".9"
+.66:
+  %".69" = getelementptr inbounds [6 x i8], [6 x i8]* @".str2", i32 0, i32 0
+  %".70" = call i32 (i8*, ...) @"printf"(i8* %".69")
+  br label %".62"
+.67:
+  br label %".62"
 }
 
-declare i32 @"scanf"(i8* %".1", ...) 
+declare i32 @"gets"(...) 
 
-@".str1" = constant [3 x i8] c"%d\00"
-@".str2" = constant [12 x i8] c"x[%d].a=%d\0a\00"
+declare i32 @"strlen"(i8* %".1") 
+
+declare i32 @"printf"(i8* %".1", ...) 
+
+@".str0" = constant [17 x i8] c"Error detected!\0a\00"
+@".str1" = constant [7 x i8] c"False\0a\00"
+@".str2" = constant [6 x i8] c"True\0a\00"
