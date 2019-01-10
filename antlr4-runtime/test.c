@@ -1,6 +1,19 @@
 int a, b;
 int d[10];
 
+struct mstruct{
+    int a;
+    double b[10];
+};
+
+// struct mstruct x;
+struct mstruct x[10];
+
+void void_foo(){
+    printf("void_foo\n");
+    return;
+}
+
 int foo(int a, int b) {
     if (a > b) {
         return a;
@@ -9,14 +22,13 @@ int foo(int a, int b) {
 }
 
 int main() {
+    int i;
     int c[10];
-    scanf("%d%d", &a, &b);
-    scanf("%d%d", &c[0], &c[1]);
-    scanf("%d%d", &d[0], &d[1]);
-    printf("a+b=%d\n", a+b);
-    printf("c[0]=%d\n", c[0]);
-    printf("c[1]=%d\n", c[1]);
-    printf("d[0]=%d\n", d[0]);
-    printf("d[1]=%d\n", d[1]);
+    for (i = 0; i < 10; i = i+1) {
+        scanf("%d", &x[i].a);
+    }
+    for (i = 0; i < 10; i = i+1) {
+        printf("x[%d].a=%d\n", i, x[i].a);
+    }
     return 0;
 }

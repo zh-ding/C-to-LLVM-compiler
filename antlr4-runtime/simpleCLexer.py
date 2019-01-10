@@ -1,8 +1,9 @@
-# Generated from /Users/dingry/Documents/git/C-to-LLVM-compiler/simpleC.g4 by ANTLR 4.7.1
+# Generated from simpleC.g4 by ANTLR 4.7.2
 from antlr4 import *
 from io import StringIO
 from typing.io import TextIO
 import sys
+
 
 
 def serializedATN():
@@ -77,8 +78,8 @@ def serializedATN():
         buf.write("\2\2|}\7\177\2\2}\f\3\2\2\2~\177\7=\2\2\177\16\3\2\2\2")
         buf.write("\u0080\u0081\7.\2\2\u0081\20\3\2\2\2\u0082\u0083\7*\2")
         buf.write("\2\u0083\22\3\2\2\2\u0084\u0085\7+\2\2\u0085\24\3\2\2")
-        buf.write("\2\u0086\u0087\7]\2\2\u0087\26\3\2\2\2\u0088\u0089\7_")
-        buf.write("\2\2\u0089\30\3\2\2\2\u008a\u008b\7?\2\2\u008b\32\3\2")
+        buf.write("\2\u0086\u0087\7?\2\2\u0087\26\3\2\2\2\u0088\u0089\7]")
+        buf.write("\2\2\u0089\30\3\2\2\2\u008a\u008b\7_\2\2\u008b\32\3\2")
         buf.write("\2\2\u008c\u008d\7k\2\2\u008d\u008e\7h\2\2\u008e\34\3")
         buf.write("\2\2\2\u008f\u0090\7g\2\2\u0090\u0091\7n\2\2\u0091\u0092")
         buf.write("\7u\2\2\u0092\u0093\7g\2\2\u0093\36\3\2\2\2\u0094\u0095")
@@ -234,7 +235,7 @@ class simpleCLexer(Lexer):
 
     literalNames = [ "<INVALID>",
             "'#include'", "'<'", "'>'", "'{'", "'}'", "';'", "','", "'('", 
-            "')'", "'['", "']'", "'='", "'if'", "'else'", "'while'", "'for'", 
+            "')'", "'='", "'['", "']'", "'if'", "'else'", "'while'", "'for'", 
             "'return'", "'!'", "'*'", "'/'", "'%'", "'+'", "'-'", "'=='", 
             "'!='", "'<='", "'>='", "'&&'", "'||'", "'int'", "'double'", 
             "'char'", "'string'", "'void'", "'struct'", "'.'", "'strlen'", 
@@ -258,7 +259,7 @@ class simpleCLexer(Lexer):
 
     def __init__(self, input=None, output:TextIO = sys.stdout):
         super().__init__(input, output)
-        self.checkVersion("4.7.1")
+        self.checkVersion("4.7.2")
         self._interp = LexerATNSimulator(self, self.atn, self.decisionsToDFA, PredictionContextCache())
         self._actions = None
         self._predicates = None

@@ -28,6 +28,7 @@ class Visitor(simpleCVisitor):
         self.local_vars = []
         self.global_vars = dict()
         self.functions = dict()
+        self.structures = dict()
         self.cur_func = ''
         self.constants = 0
         self.need_load = True
@@ -52,13 +53,176 @@ class Visitor(simpleCVisitor):
 
 
     # Visit a parse tree produced by simpleCParser#mStruct.
-    def visitMStruct(self, ctx:simpleCParser.MStructContext):
-        return self.visitChildren(ctx)
+    def visitMStructDef(self, ctx:simpleCParser.MStructContext):
+        print('structdef')
+        struct_name = ctx.getChild(0).getChild(1).getText()
+        if struct_name in self.structures:  # error!
+            return
+        index = 2
+        struct_types = []
+        struct_names = []
+        while ctx.getChild(index).getText() != '}':
+            struct_types_, struct_names_ = self.visit(ctx.getChild(index))
+            struct_types = struct_types + struct_types_
+            struct_names = struct_names + struct_names_
+            index += 1
+        self.structures[struct_name] = {
+                'members': struct_names,
+                'struct': ir.LiteralStructType(struct_types)
+        }
+        # print(self.structures[struct_name]['struct'].elements[0])
 
 
     # Visit a parse tree produced by simpleCParser#structParam.
     def visitStructParam(self, ctx:simpleCParser.StructParamContext):
-        return self.visitChildren(ctx)
+        print('StructParam')
+        # print(ctx.getText())
+        struct_types = []
+        struct_names = []
+        if ctx.getChild(0).getChildCount() == 1:  # mtype
+            index = 1
+            type_ = self.visit(ctx.getChild(0))
+            while True:
+                if ctx.getChild(index).getChildCount() == 1: # 'mID'
+                    struct_names.append(ctx.getChild(index).getText())
+                    struct_types.append(type_)
+                elif ctx.getChild(index).getChildCount() == 4: # mArray
+                    res = self.visit(ctx.getChild(index))
+                    struct_names.append(res['IDname'])
+                    struct_types.append(ir.ArrayType(type_, res['length']))
+                else:
+                    print('almost impossible!')
+                if ctx.getChild(index+1).getText() == ';':
+                    break;
+                index += 2
+            return struct_types, struct_names
+        else: # mstruct
+            pass
+        # return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by simpleCParser#structInitBlock.
+    def visitStructInitBlock(self, ctx:simpleCParser.StructInitBlockContext):
+        print('structInitBlock')
+        res = self.visit(ctx.getChild(0))
+        type_ = res['struct']
+        struct_name = ctx.getChild(0).getChild(1).getText()
+
+        if ctx.getChild(1).getChildCount() == 1: # 'mID'
+            IDname = ctx.getChild(1).getText()
+
+            if len(self.blocks) == 0: # global
+                if IDname in self.global_vars: # error!
+                    pass
+                new_var = ir.GlobalVariable(self.module, type_, name=IDname)
+                new_var.linkage = 'common'
+                new_var.initializer = ir.Constant(type_, None)
+
+                self.global_vars[IDname] = {
+                    'struct_name': struct_name,
+                    'type': type_,
+                    'name': new_var
+                }
+            else:
+                builder = self.builders[-1]
+                varList = self.local_vars[-1]
+
+                if IDname in self.varList: # error!
+                    pass
+                new_var = builder.alloca(type_, name=IDname)
+                varList[IDname] = {
+                    'struct_name': struct_name,
+                    'type': type_,
+                    'name': new_var
+                }
+
+        else: # mArray
+            res = self.visit(ctx.getChild(1))
+            IDname = res['IDname']
+            type__ = ir.ArrayType(type_, res['length'])
+            # print(struct_name)
+
+            if len(self.blocks) == 0: # global
+                if IDname in self.global_vars: # error!
+                    pass
+                new_var = ir.GlobalVariable(self.module, type__, name=IDname)
+                new_var.linkage = 'common'
+                new_var.initializer = ir.Constant(type__, None)
+
+                self.global_vars[IDname] = {
+                    'struct_name': struct_name,
+                    'type': type__,
+                    'name': new_var
+                }
+            else:
+                builder = self.builders[-1]
+                varList = self.local_vars[-1]
+
+                if IDname in self.varList: # error!
+                    pass
+                new_var = builder.alloca(type__, name=IDname)
+                varList[IDname] = {
+                    'struct_name': struct_name,
+                    'type': type__,
+                    'name': new_var
+                }
+        return
+
+
+    # Visit a parse tree produced by simpleCParser#structMember.
+    def visitStructMember(self, ctx:simpleCParser.StructMemberContext):
+        builder = self.builders[-1]
+        if ctx.getChild(0).getChildCount() == 1: # mID
+            if ctx.getChild(2).getChildCount() == 1: # mID
+                tmp_need_load = self.need_load
+                self.need_load = False
+                res = self.visit(ctx.getChild(0))
+                self.need_load = tmp_need_load
+
+                struct_name = res['struct_name']
+                # print(self.structures[struct_name]['struct'].elements[0])
+                index = self.structures[struct_name]['members'].index(ctx.getChild(2).getText())
+                zero = ir.Constant(int32, 0)
+                idx = ir.Constant(int32, index)
+                new_var = builder.gep(res['name'], [zero, idx], inbounds=True)
+
+                if self.need_load:
+                    new_var = builder.load(new_var)
+
+                return {
+                    'type': self.structures[struct_name]['struct'].elements[index],
+                    'const': False,
+                    'name': new_var
+                }
+            else: # mArray
+                pass
+        else: # mArray
+            if ctx.getChild(2).getChildCount() == 1: # mID
+
+                tmp_need_load = self.need_load
+                self.need_load = False
+                res = self.visit(ctx.getChild(0))
+                self.need_load = tmp_need_load
+
+                # print(res)
+                struct_name = res['struct_name']
+                index = self.structures[struct_name]['members'].index(ctx.getChild(2).getText())
+                zero = ir.Constant(int32, 0)
+                idx = ir.Constant(int32, index)
+                new_var = builder.gep(res['name'], [zero, idx], inbounds=True)
+
+                if self.need_load:
+                    new_var = builder.load(new_var)
+
+                return {
+                    'type': self.structures[struct_name]['struct'].elements[index],
+                    'const': False,
+                    'name': new_var
+                }
+
+            else: # mArray
+                pass
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#mFunction.
@@ -167,6 +331,7 @@ class Visitor(simpleCVisitor):
     # Visit a parse tree produced by simpleCParser#initialBlock.
     def visitInitialBlock(self, ctx:simpleCParser.InitialBlockContext):
         print('initialBlock')
+        # print(ctx.getText())
         if len(self.blocks) == 0:   # global value
             type_ = self.visit(ctx.getChild(0))
             total = ctx.getChildCount()
@@ -439,6 +604,7 @@ class Visitor(simpleCVisitor):
     # Visit a parse tree produced by simpleCParser#forBlock.
     def visitForBlock(self, ctx:simpleCParser.ForBlockContext):
         print('forBlock')
+        # print(ctx.getText())
         self.visit(ctx.getChild(2)) # initial block
 
         builder = self.builders[-1]
@@ -512,9 +678,6 @@ class Visitor(simpleCVisitor):
         total = ctx.getChildCount()
         if total == 0:
             return
-
-        # print(ctx.getChild(0).getText())
-        # print(ctx.getChild(2).getText())
 
         tmp_need_load = self.need_load
         self.need_load = False
@@ -675,10 +838,9 @@ class Visitor(simpleCVisitor):
         return self.visit(ctx.getChild(1))
 
 
-    # Visit a parse tree produced by simpleCParser#arrayietm.
-    def visitArrayietm(self, ctx:simpleCParser.ArrayietmContext):
+    # Visit a parse tree produced by simpleCParser#arrayitem.
+    def visitArrayitem(self, ctx:simpleCParser.ArrayitemContext):
         return self.visit(ctx.getChild(0))
-        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#string.
@@ -785,6 +947,18 @@ class Visitor(simpleCVisitor):
         return self.visit(ctx.getChild(0))
 
 
+    # Visit a parse tree produced by simpleCParser#mVoid.
+    def visitMVoid(self, ctx:simpleCParser.MVoidContext):
+        return void
+
+    # Visit a parse tree produced by simpleCParser#mArray.
+    def visitMArray(self, ctx:simpleCParser.MArrayContext):
+        return {
+            'IDname': ctx.getChild(0).getText(),
+            'length': int(ctx.getChild(2).getText())
+        }
+        # return self.visitChildren(ctx)
+
     # Visit a parse tree produced by simpleCParser#Judge.
     def visitJudge(self, ctx:simpleCParser.JudgeContext):
         builder = self.builders[-1]
@@ -820,6 +994,7 @@ class Visitor(simpleCVisitor):
         self.need_load = False
         res = self.visit(ctx.getChild(0)) # mID
         self.need_load = tmp_need_load
+        # print(res)
         
         if isinstance(res['type'], ir.types.ArrayType):
             builder = self.builders[-1]
@@ -831,16 +1006,14 @@ class Visitor(simpleCVisitor):
             self.need_load = tmp_need_load
             
             zero = ir.Constant(int32, 0)
-            # print(res['name'])
             new_var = builder.gep(res['name'], [zero, res1['name']], inbounds=True)
             if self.need_load:
                 new_var = builder.load(new_var)
-            # print(res['type'].elements)
-            # print(res['type'].element)
             return {
                     'type': res['type'].element,
                     'const': False,
-                    'name': new_var
+                    'name': new_var,
+                    'struct_name': res['struct_name'] if 'struct_name' in res else None
             }
         else:   # error!
             pass
@@ -1022,6 +1195,11 @@ class Visitor(simpleCVisitor):
         return self.visit(ctx.getChild(0))
 
 
+    # Visit a parse tree produced by simpleCParser#mStruct.
+    def visitMStruct(self, ctx:simpleCParser.MStructContext):
+        return self.structures[ctx.getChild(1).getText()]
+
+
     # Visit a parse tree produced by simpleCParser#mID.
     def visitMID(self, ctx:simpleCParser.MIDContext):
         IDname = ctx.getText()
@@ -1035,13 +1213,15 @@ class Visitor(simpleCVisitor):
                     return {
                             'type': varList[IDname]['type'],
                             'const': False,
-                            'name': var
+                            'name': var,
+                            'struct_name':  varList[IDname]['struct_name'] if 'struct_name' in varList[IDname] else None
                     }
                 else:
                     return {
                             'type': varList[IDname]['type'],
                             'const': False,
-                            'name': varList[IDname]['name']
+                            'name': varList[IDname]['name'],
+                            'struct_name':  varList[IDname]['struct_name'] if 'struct_name' in varList[IDname] else None
                     }
         if IDname in self.global_vars:
             if self.need_load:
@@ -1049,13 +1229,15 @@ class Visitor(simpleCVisitor):
                 return {
                         'type': self.global_vars[IDname]['type'],
                         'const': False,
-                        'name': var
+                        'name': var,
+                        'struct_name':  self.global_vars[IDname]['struct_name'] if 'struct_name' in self.global_vars[IDname] else None
                 }
             else:
                 return {
                         'type': self.global_vars[IDname]['type'],
                         'const': False,
-                        'name': self.global_vars[IDname]['name']
+                        'name': self.global_vars[IDname]['name'],
+                        'struct_name':  self.global_vars[IDname]['struct_name'] if 'struct_name' in self.global_vars[IDname] else None
                 }
         return {
                 'type': void,

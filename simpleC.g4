@@ -29,7 +29,7 @@ body : (block | func';')*;
 block : initialBlock | arrayInitBlock | structInitBlock | assignBlock | ifBlocks | whileBlock | forBlock | returnBlock;
 
 //初始化语句
-initialBlock : (mType) mID ('[' mINT ']')? ('=' expr)? (',' mID ('=' expr)?)* ';';
+initialBlock : (mType) mID ('=' expr)? (',' mID ('=' expr)?)* ';';
 arrayInitBlock : mType mID '[' mINT ']'';'; 
 structInitBlock : mStruct (mID|mArray)';';
 
@@ -102,7 +102,7 @@ printfFunc
     : 'printf' '(' (mSTRING | mID) (','expr)* ')';
 
 //scanf
-scanfFunc : 'scanf' '(' mSTRING (','('&')?(mID|arrayItem))* ')';
+scanfFunc : 'scanf' '(' mSTRING (','('&')?(mID|arrayItem|structMember))* ')';
 
 //gets
 getsFunc : 'gets' '(' mID ')';
