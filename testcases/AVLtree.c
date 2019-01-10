@@ -46,11 +46,16 @@ int leftLeftRotation(int node){
 	nodes[node].left = nodes[nodes[node].left].right;
 	nodes[temp].right = node;
 
-	p1 = getHeight(nodes[node].left);
-	p2 = getHeight(nodes[node].right);
+	int param;
+	param = nodes[node].left;
+	p1 = getHeight(param);
+	param = nodes[node].right;
+	p2 = getHeight(param);
 	nodes[node].height = max(p1, p2) + 1;
-	p1 = getHeight(nodes[temp].left);
-	p2 = getHeight(nodes[temp].right);
+	param = nodes[temp].left;
+	p1 = getHeight(param);
+	param = nodes[temp].right;
+	p2 = getHeight(param);
 	nodes[temp].height = max(p1, p2) + 1;
 	return temp;
 }
@@ -60,30 +65,38 @@ int rightRightRotation(int node){
 	nodes[node].right = nodes[nodes[node].right].left;
 	nodes[temp].left = node;
 
-	p1 = getHeight(nodes[node].left);
-	p2 = getHeight(nodes[node].right);
+	int param;
+	param = nodes[node].left;
+	p1 = getHeight(param);
+	param = nodes[node].right;
+	p2 = getHeight(param);
 	nodes[node].height = max(p1, p2) + 1;
-	p1 = getHeight(nodes[temp].left);
-	p2 = getHeight(nodes[temp].right);
+	param = nodes[temp].left;
+	p1 = getHeight(param);
+	param = nodes[temp].right;
+	p2 = getHeight(param);
 	nodes[temp].height = max(p1, p2) + 1;
 	return temp;
 }
 
 int leftRightRotation(int node){
 	int ret;
-	nodes[node].left = rightRightRotation(nodes[node].left);
+	int param = nodes[node].left;
+	nodes[node].left = rightRightRotation(param);
 	ret = leftLeftRotation(node);
 	return ret;
 }
 
 int rightLeftRotation(int node){
 	int ret;
-	nodes[node].right = leftLeftRotation(nodes[node].right);
+	int param = nodes[node].right;
+	nodes[node].right = leftLeftRotation(param);
 	ret = rightRightRotation(node);
 	return ret;
 }
 
 int insert(int node, int elem){
+	int param, p1, p2;
 	if(nodes[node].is_null){
 		int i = avai;
 		while(!nodes[i].is_null) {i = i + 1;}
@@ -92,9 +105,14 @@ int insert(int node, int elem){
 		avai = i + 1;
 		return i;
 	}else if(elem < nodes[node].elem){
-		nodes[node].left = insert(nodes[node].left, elem);
-		nodes[node].height = max(nodes[nodes[node].left].height, nodes[nodes[node].right].height) + 1;
-		if (getHeight(nodes[node].left) - getHeight(nodes[node].right) == 2){
+		param = nodes[node].left;
+		nodes[node].left = insert(param, elem);
+		p1 = nodes[nodes[node].left].height;
+		p2 = nodes[nodes[node].right].height;
+		nodes[node].height = max(p1, p2) + 1;
+		p1 = nodes[node].left;
+		p2 = nodes[node].right;
+		if (getHeight(p1) - getHeight(p2) == 2){
 			if (elem < nodes[nodes[node].left].elem) {
 				node = leftLeftRotation(node);
 			}
@@ -104,9 +122,14 @@ int insert(int node, int elem){
 		}
 		return node;
 	}else if(elem > nodes[node].elem){
-		nodes[node].right = insert(nodes[node].right, elem);
-		nodes[node].height = max(nodes[nodes[node].left].height, nodes[nodes[node].right].height) + 1;
-		if (getHeight(nodes[node].left) - getHeight(nodes[node].right) == -2){
+		param = nodes[node].right;
+		nodes[node].right = insert(param, elem);
+		p1 = nodes[nodes[node].left].height;
+		p2 = nodes[nodes[node].right].height;
+		nodes[node].height = max(p1, p2) + 1;
+		p1 = nodes[node].left;
+		p2 = nodes[node].right;
+		if (getHeight(p1) - getHeight(p2) == -2){
 			if (elem > nodes[nodes[node].right].elem) {
 				node = rightRightRotation(node);
 			}
@@ -124,7 +147,7 @@ void addNode(int elem){
 }
 
 int search(int node, int elem){
-	int ret;
+	int ret, p;
 	if(nodes[node].is_null) {
 		return 0;
 	}
@@ -132,11 +155,13 @@ int search(int node, int elem){
 		return node;
 	}
 	else if(elem < nodes[node].elem) {
-		ret = search(nodes[node].left, elem);
+		p = nodes[node].left;
+		ret = search(p, elem);
 		return ret;
 	}
 	else {
-		ret = search(nodes[node].right, elem);
+		p = nodes[node].right;
+		ret = search(p, elem);
 		return ret;
 	}
 }
@@ -180,13 +205,16 @@ void printAVL(int node){
 		return;
 	}
 	printNode(node);
+	int p;
+	p = nodes[node].left;
     printAVL(nodes[node].left);
+    p = nodes[node].right;
     printAVL(nodes[node].right);
     return;
 }
 
 int main(){
-	int n, i, elem, comm;
+	int n, i, elem, comm, p;
 	initTree();
 
 	while(1){
@@ -200,7 +228,8 @@ int main(){
 			printAVL(root);
 		}
 		else if(comm == 2) {
-			printNode(searchNode(elem));
+			p = searchNode(elem);
+			printNode(p);
 		}
 		
 	}
