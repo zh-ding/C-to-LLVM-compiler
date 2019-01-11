@@ -7,11 +7,16 @@ from simpleCListener import simpleCListener
 from simpleCVisitor import simpleCVisitor
 from visitor import Visitor
 
+from syntaxErrorListener import syntaxErrorListener
+
 def main(argv):
     input = FileStream(argv[1])
     lexer = simpleCLexer(input)
     stream = CommonTokenStream(lexer)
     parser = simpleCParser(stream)
+    parser.removeErrorListeners()
+    errorListener = syntaxErrorListener()
+    parser.addErrorListener(errorListener)
     tree = parser.prog()
     # v = simpleCVisitor()
     v = Visitor()
