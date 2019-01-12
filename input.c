@@ -3,10 +3,10 @@
 #include <stdlib.h>
 int a = 1;
 char b = '1';
-//int a =2;
 
 
 int main() {
+	c=2;
 	char S[1024];
 	char T[1024];
 	int nxt[1024];
@@ -27,7 +27,6 @@ int main() {
         }
 		nxt[i] = j;
 	}
-
 	for (i = 0, j = -1; i < lenS; i = i + 1) {
 		for (; j >= 0 && S[i] != T[j+1]; j = nxt[j]);
 		if (S[i] == T[j+1]) {

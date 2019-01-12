@@ -1370,10 +1370,10 @@ class Visitor(simpleCVisitor):
 
     def var_define_check(self, var_name):
         if not self.symbol_table.__contains__(var_name):
-            print("Symantic Error：", var_name, " undefined")
+            print("Semantic Error：", var_name, " is undefined")
             return False
         if (self.symbol_table[var_name][0] > self.scope):
-            print("Symantic Error：", var_name, " undefined")
+            print("Semantic Error：", var_name, " is undefined")
             return False
         return True
 
@@ -1381,7 +1381,7 @@ class Visitor(simpleCVisitor):
         if not self.symbol_table.__contains__(var_name):
             self.symbol_table[var_name] = [self.scope]
         elif self.symbol_table[var_name][-1] == self.scope:
-            print("Symantic Error：",var_name, "redefined")
+            print("Semantic Error：",var_name, " is redefined")
         else:    
             self.symbol_table[var_name].append(self.scope)
 
