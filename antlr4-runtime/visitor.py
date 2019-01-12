@@ -35,10 +35,13 @@ class Visitor(simpleCVisitor):
         self.endifBlock = None
         # self.var_cnt = 0
         # self.label_cnt = 0
+        self.symbol_table = dict() 
+        self.scope = 0
+
 
     # Visit a parse tree produced by simpleCParser#prog.
     def visitProg(self, ctx:simpleCParser.ProgContext):
-        print('Prog')
+        #print('Prog')
         total = ctx.getChildCount()
         for index in range(total):
             # print(ctx.getChild(index).getRuleIndex())
@@ -48,13 +51,15 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#include.
     def visitInclude(self, ctx:simpleCParser.IncludeContext):
-        print('include')
+        #print('include')
         return
 
 
     # Visit a parse tree produced by simpleCParser#mStruct.
     def visitMStructDef(self, ctx:simpleCParser.MStructContext):
-        print('structdef')
+        #print('structdef')
+        self.enter_scope() 
+        #print(ctx.getSourceInterval())
         struct_name = ctx.getChild(0).getChild(1).getText()
         if struct_name in self.structures:  # error!
             return
@@ -66,16 +71,19 @@ class Visitor(simpleCVisitor):
             struct_types = struct_types + struct_types_
             struct_names = struct_names + struct_names_
             index += 1
+            self.var_insert_table(struct_names[-1])
+
         self.structures[struct_name] = {
                 'members': struct_names,
                 'struct': ir.LiteralStructType(struct_types)
         }
+        self.leave_scope()
         # print(self.structures[struct_name]['struct'].elements[0])
 
 
     # Visit a parse tree produced by simpleCParser#structParam.
     def visitStructParam(self, ctx:simpleCParser.StructParamContext):
-        print('StructParam')
+        #print('StructParam')
         # print(ctx.getText())
         struct_types = []
         struct_names = []
@@ -93,7 +101,7 @@ class Visitor(simpleCVisitor):
                 else:
                     print('almost impossible!')
                 if ctx.getChild(index+1).getText() == ';':
-                    break;
+                    break
                 index += 2
             return struct_types, struct_names
         else: # mstruct
@@ -103,14 +111,14 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#structInitBlock.
     def visitStructInitBlock(self, ctx:simpleCParser.StructInitBlockContext):
-        print('structInitBlock')
+        #print('structInitBlock')
         res = self.visit(ctx.getChild(0))
         type_ = res['struct']
         struct_name = ctx.getChild(0).getChild(1).getText()
 
         if ctx.getChild(1).getChildCount() == 1: # 'mID'
             IDname = ctx.getChild(1).getText()
-
+            self.var_insert_table(IDname)
             if len(self.blocks) == 0: # global
                 if IDname in self.global_vars: # error!
                     pass
@@ -141,7 +149,7 @@ class Visitor(simpleCVisitor):
             IDname = res['IDname']
             type__ = ir.ArrayType(type_, res['length'])
             # print(struct_name)
-
+            self.var_insert_table(IDname)
             if len(self.blocks) == 0: # global
                 if IDname in self.global_vars: # error!
                     pass
@@ -227,7 +235,8 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#mFunction.
     def visitMFunction(self, ctx:simpleCParser.MFunctionContext):
-        print('MFunction')
+        #print('MFunction')
+        self.enter_scope()
         return_type = self.visit(ctx.getChild(0)) # mtype
         func_name = ctx.getChild(1).getText() # func name
         params = self.visit(ctx.getChild(3)) # func params
@@ -261,6 +270,7 @@ class Visitor(simpleCVisitor):
         self.blocks.pop()
         self.builders.pop()
         self.local_vars.pop()
+        self.leave_scope()
         return
 
 
@@ -279,6 +289,7 @@ class Visitor(simpleCVisitor):
     def visitParam(self, ctx:simpleCParser.ParamContext):
         type_ = self.visit(ctx.getChild(0))
         IDname = ctx.getChild(1).getText()
+        self.var_insert_table(IDname)
         return {
                 'type': type_,
                 'IDname': IDname
@@ -287,17 +298,19 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#funcBody.
     def visitFuncBody(self, ctx:simpleCParser.FuncBodyContext):
+        self.enter_scope()
         total = ctx.getChildCount()
         # print(ctx.getText())
         for index in range(total):
             self.visit(ctx.getChild(index))
+        self.leave_scope()
         return
         # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by simpleCParser#body.
     def visitBody(self, ctx:simpleCParser.BodyContext):
-        print('body')
+        #print('body')
         total = ctx.getChildCount()
         for index in range(total):
             self.visit(ctx.getChild(index))
@@ -332,7 +345,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#initialBlock.
     def visitInitialBlock(self, ctx:simpleCParser.InitialBlockContext):
-        print('initialBlock')
+        #print('initialBlock')
         # print(ctx.getText())
         if len(self.blocks) == 0:   # global value
             type_ = self.visit(ctx.getChild(0))
@@ -340,8 +353,9 @@ class Visitor(simpleCVisitor):
             index = 1
             while index < total:
                 IDname = ctx.getChild(index).getText()
+                self.var_insert_table(IDname)
                 if IDname in self.global_vars: # error!
-                    pass
+                    return
                 new_var = ir.GlobalVariable(self.module, type_, name=IDname)
                 new_var.linkage = 'common'
                 self.global_vars[IDname] = {
@@ -368,8 +382,10 @@ class Visitor(simpleCVisitor):
         index = 1
         while index < total:
             IDname = ctx.getChild(index).getText()
+            self.var_insert_table(IDname)
+
             if IDname in varList:   # error!
-                pass
+                return
             
             new_var = builder.alloca(type_, name=IDname)
             varList[IDname] = {
@@ -394,8 +410,9 @@ class Visitor(simpleCVisitor):
         Len = int(ctx.getChild(3).getText())
 
         if len(self.blocks) == 0:   # global value
+            self.var_insert_table(IDname)
             if IDname in self.global_vars: # error!
-                pass
+                return
             new_var = ir.GlobalVariable(self.module, ir.ArrayType(type_, Len), name=IDname)
             new_var.linkage = 'common'
             self.global_vars[IDname] = {
@@ -406,8 +423,9 @@ class Visitor(simpleCVisitor):
 
         builder = self.builders[-1]
         varList = self.local_vars[-1]
+        self.var_insert_table(IDname)
         if IDname in varList: # error!
-            pass
+            return
         new_var = builder.alloca(ir.ArrayType(type_, Len), name=IDname)
         varList[IDname] = {
             'type': ir.ArrayType(type_, Len),
@@ -419,10 +437,14 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#assignBlock.
     def visitAssignBlock(self, ctx:simpleCParser.AssignBlockContext):
-        print('assignBlock')
+        #print('assignBlock')
         builder = self.builders[-1]
         total = ctx.getChildCount()
         # print(total)
+        IDname = ctx.getChild(0).getText()
+        if not '[' in IDname and  not self.var_define_check(IDname):
+            return
+            
         res = self.visit(ctx.getChild(total-2))
 
         rng = [i for i in range(0, total-2, 2)]
@@ -449,7 +471,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#ifBlocks.
     def visitIfBlocks(self, ctx:simpleCParser.IfBlocksContext):
-        print('ifblocks')
+        #print('ifblocks')
         builder = self.builders[-1]
         total = ctx.getChildCount()
         ifblocks = builder.append_basic_block()
@@ -481,6 +503,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#ifBlock.
     def visitIfBlock(self, ctx:simpleCParser.IfBlockContext):
+        self.enter_scope()
         res = self.visit(ctx.getChild(2))
         builder = self.builders[-1]
         new_block_true = builder.append_basic_block()
@@ -506,11 +529,13 @@ class Visitor(simpleCVisitor):
 
         self.blocks.append(new_block_false)
         self.builders.append(ir.IRBuilder(new_block_false))
+        self.leave_scope()
         return
 
 
     # Visit a parse tree produced by simpleCParser#elifBlock.
     def visitElifBlock(self, ctx:simpleCParser.ElifBlockContext):
+        self.enter_scope()
         res = self.visit(ctx.getChild(3))
         builder = self.builders[-1]
         new_block_true = builder.append_basic_block()
@@ -536,22 +561,25 @@ class Visitor(simpleCVisitor):
 
         self.blocks.append(new_block_false)
         self.builders.append(ir.IRBuilder(new_block_false))
+        self.leave_scope()
         return
 
 
     # Visit a parse tree produced by simpleCParser#elseBlock.
     def visitElseBlock(self, ctx:simpleCParser.ElseBlockContext):
+        self.enter_scope()
         self.local_vars.append({})
 
         self.visit(ctx.getChild(2)) # body
 
         self.local_vars.pop()
+        self.leave_scope()
         return
 
 
     # Visit a parse tree produced by simpleCParser#condition.
     def visitCondition(self, ctx:simpleCParser.ConditionContext):
-        print('condition')
+        #print('condition')
         # builder = self.builders[-1]
         ret = self.visit(ctx.getChild(0))
         ret = self.toBoolean(ret, notFlag=False)
@@ -570,8 +598,9 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#whileBlock.
     def visitWhileBlock(self, ctx:simpleCParser.WhileBlockContext):
-        print('whileBlock')
+        #print('whileBlock')
         # print(ctx.getText())
+        self.enter_scope()
         builder = self.builders[-1]
         whileCond = builder.append_basic_block()
         whileMain = builder.append_basic_block()
@@ -605,13 +634,15 @@ class Visitor(simpleCVisitor):
 
         self.blocks.append(whileEnd)
         self.builders.append(ir.IRBuilder(whileEnd))
+        self.leave_scope()
         return
 
 
     # Visit a parse tree produced by simpleCParser#forBlock.
     def visitForBlock(self, ctx:simpleCParser.ForBlockContext):
-        print('forBlock')
+        #print('forBlock')
         # print(ctx.getText())
+        self.enter_scope()
         self.visit(ctx.getChild(2)) # initial block
 
         builder = self.builders[-1]
@@ -651,6 +682,7 @@ class Visitor(simpleCVisitor):
 
         self.blocks.append(forEnd)
         self.builders.append(ir.IRBuilder(forEnd))
+        self.leave_scope()
         return
         # return self.visitChildren(ctx)
 
@@ -704,7 +736,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#returnBlock.
     def visitReturnBlock(self, ctx:simpleCParser.ReturnBlockContext):
-        print('returnBlock')
+        #print('returnBlock')
         builder = self.builders[-1]
 
         if ctx.getChildCount() == 2:
@@ -801,7 +833,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#Neg.
     def visitNeg(self, ctx:simpleCParser.NegContext):
-        print(ctx.getChild(1).getText())
+        #print(ctx.getChild(1).getText())
         res = self.visit(ctx.getChild(1))
         res = self.toBoolean(res, notFlag = True)
         return self.visitChildren(ctx)
@@ -1036,7 +1068,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#strlenFunc.
     def visitStrlenFunc(self, ctx:simpleCParser.StrlenFuncContext):
-        print('strlenFunc')
+        #print('strlenFunc')
         if 'strlen' in self.functions:
             strlen = self.functions['strlen']
         else:
@@ -1069,7 +1101,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#printfFunc.
     def visitPrintfFunc(self, ctx:simpleCParser.PrintfFuncContext):
-        print('printfFunc')
+        #print('printfFunc')
         if 'printf' in self.functions:
             printf = self.functions['printf']
         else:
@@ -1104,7 +1136,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#scanfFunc.
     def visitScanfFunc(self, ctx:simpleCParser.ScanfFuncContext):
-        print('scanfFunc')
+        #print('scanfFunc')
         if 'scanf' in self.functions:
             scanf = self.functions['scanf']
         else:
@@ -1145,7 +1177,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#getsFunc.
     def visitGetsFunc(self, ctx:simpleCParser.GetsFuncContext):
-        print('getsfunc')
+        #print('getsfunc')
         if 'gets' in self.functions:
             gets = self.functions['gets']
         else:
@@ -1172,7 +1204,7 @@ class Visitor(simpleCVisitor):
 
     # Visit a parse tree produced by simpleCParser#selfDefinedFunc.
     def visitSelfDefinedFunc(self, ctx:simpleCParser.SelfDefinedFuncContext):
-        print('selfDefinedFunc')
+        #print('selfDefinedFunc')
         # print(ctx.getText())
         builder = self.builders[-1]
         func_name = ctx.getChild(0).getText() # func name
@@ -1211,6 +1243,12 @@ class Visitor(simpleCVisitor):
     # Visit a parse tree produced by simpleCParser#mID.
     def visitMID(self, ctx:simpleCParser.MIDContext):
         IDname = ctx.getText()
+        if not self.var_define_check(IDname):
+           return {
+                'type': int32,
+                'const': False,
+                'name': ir.Constant(int32, None)
+            }
         builder = self.builders[-1]
         total = len(self.local_vars)
         for index in range(total):
@@ -1314,6 +1352,39 @@ class Visitor(simpleCVisitor):
     def visitMLIB(self, ctx:simpleCParser.MLIBContext):
         # return self.visitChildren(ctx)
         return
+    
+    def enter_scope(self):
+        #print("enter scope", self.scope)
+        self.scope += 1
+
+    def leave_scope(self):
+        #print(self.symbol_table)
+        keys = list(self.symbol_table.keys())
+        for index in keys:
+            if self.symbol_table[index][-1] >= self.scope:
+                self.symbol_table[index].pop(-1)
+                if len(self.symbol_table[index]) == 0:
+                    del self.symbol_table[index]
+        self.scope -= 1
+        #print("leave scope",self.scope)
+
+    def var_define_check(self, var_name):
+        if not self.symbol_table.__contains__(var_name):
+            print("Symantic Error：", var_name, " undefined")
+            return False
+        if (self.symbol_table[var_name][0] > self.scope):
+            print("Symantic Error：", var_name, " undefined")
+            return False
+        return True
+
+    def var_insert_table(self, var_name):
+        if not self.symbol_table.__contains__(var_name):
+            self.symbol_table[var_name] = [self.scope]
+        elif self.symbol_table[var_name][-1] == self.scope:
+            print("Symantic Error：",var_name, "redefined")
+        else:    
+            self.symbol_table[var_name].append(self.scope)
+
 
 
 
